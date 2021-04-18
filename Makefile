@@ -1,4 +1,4 @@
-OBJS = Main.cpp
+OBJS = Main.cpp Game.cpp
 
 OBJ_NAME = testGame
 
