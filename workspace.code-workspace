@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"C_Cpp.default.includePath": [
+			"C:\\Users\\Igor\\Documents\\Development\\SDL2_64x\\include"
+		]
+	}
+}
