@@ -24,5 +24,5 @@ class Game {
     const int m_screenWidth = 800;
     const int m_screenHeight = 600;
     SDL_Renderer* m_renderer = nullptr;
-	SDL_Window* m_window = nullptr;
+    SDL_Window* m_window = nullptr;
 };
