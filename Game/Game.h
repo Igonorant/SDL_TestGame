@@ -1,6 +1,8 @@
 #pragma once
 
 #include <SDL2/SDL.h>
+#include "../Engine/TextureManager.h"
+#include <memory>
 
 class Game {
   public:
@@ -12,7 +14,6 @@ class Game {
     Game& operator=(Game&&) = delete; // no move-assignment
 
   public:
-    void InitializeSDL();
     void StartGame();
 
   private:
@@ -26,4 +27,5 @@ class Game {
     const int m_screenHeight = 600;
     SDL_Renderer* m_renderer = nullptr;
     SDL_Window* m_window = nullptr;
+    std::shared_ptr<TextureManager> m_textureMgr = nullptr;
 };
