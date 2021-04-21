@@ -18,8 +18,8 @@ TextureManager::~TextureManager() {
 }
 
 SDL_Texture* TextureManager::GetTexture(const std::string& filePath) {
-    const auto it = std::find(m_loadedTextures.cbegin(), m_loadedTextures.cend(), filePath);
-    if (it == m_loadedTextures.cend()) {
+    auto it = m_loadedTextures.find(filePath);
+    if (it == m_loadedTextures.end()) {
         SDL_Texture* texture = IMG_LoadTexture(m_SDL_Renderer, filePath.c_str());
         m_loadedTextures.emplace(std::make_pair(filePath, texture));
         return texture;
