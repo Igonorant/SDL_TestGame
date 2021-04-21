@@ -1,5 +1,6 @@
 #include "Game.h"
 #include <iostream>
+#include <vector>
 
 Game::Game() {
     int rendererFlags, windowFlags;
@@ -34,6 +35,20 @@ Game::~Game() {
 
 void Game::StartGame() {
     m_quitGame |= !m_isInitialized;
+
+    loadAssets();
+
+    struct character {
+        SDL_Rect dest;
+        SDL_Texture* texture;
+    };
+
+    character player;
+    player.dest.x = 100;
+    player.dest.y = 100;
+    player.texture = m_textureMgr->GetTexture("Assets/character.png");
+	SDL_QueryTexture(player.texture, nullptr, nullptr, &player.dest.w, &player.dest.h);
+
     while (!m_quitGame)
     {
         SDL_SetRenderDrawColor(m_renderer, 96, 128, 255, 255);
@@ -41,10 +56,12 @@ void Game::StartGame() {
 
         ProcessInput();
 
+        SDL_RenderCopy(m_renderer, player.texture, nullptr, &player.dest);
         SDL_RenderPresent(m_renderer);
 
         SDL_Delay(16);
     }
+    return;
 }
 
 void Game::ProcessInput() {
@@ -57,3 +74,13 @@ void Game::ProcessInput() {
         }
     }
 }
+
+void Game::loadAssets() {
+    std::vector<std::string> assetsToLoad = {
+        "Assets/character.png"
+    };
+    for (const auto& filePath : assetsToLoad) {
+        m_textureMgr->GetTexture(filePath);
+    }
+}
+

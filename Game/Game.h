@@ -18,6 +18,7 @@ class Game {
 
   private:
     void ProcessInput();
+    void loadAssets();
 
   private:
     bool m_isInitialized = false;
