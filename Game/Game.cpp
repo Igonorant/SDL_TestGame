@@ -19,7 +19,6 @@ Game::Game() {
 
     m_renderer = SDL_CreateRenderer(m_window, -1, rendererFlags);
     if (!m_renderer) {
-        printf("Failed to create renderer: %s\n", SDL_GetError());
         std::cout << "Couldn't create renderer: " << SDL_GetError() << std::endl;
     } else {
         m_textureMgr = std::make_shared<TextureManager>(m_renderer);
