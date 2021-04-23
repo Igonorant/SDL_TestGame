@@ -1,6 +1,7 @@
 #include "Game.h"
 #include <iostream>
 #include <vector>
+#include "../Engine/Object.h"
 
 Game::Game() {
     int rendererFlags, windowFlags;
@@ -37,17 +38,7 @@ void Game::StartGame() {
     m_quitGame |= !m_isInitialized;
 
     loadAssets();
-
-    struct character {
-        SDL_Rect dest;
-        SDL_Texture* texture;
-    };
-
-    character player;
-    player.dest.x = 100;
-    player.dest.y = 100;
-    player.texture = m_textureMgr->GetTexture("Assets/character.png");
-	SDL_QueryTexture(player.texture, nullptr, nullptr, &player.dest.w, &player.dest.h);
+    Object player(m_textureMgr->GetTexture("Assets/character.png"), 100, 100);
 
     while (!m_quitGame)
     {
@@ -56,7 +47,7 @@ void Game::StartGame() {
 
         ProcessInput();
 
-        SDL_RenderCopy(m_renderer, player.texture, nullptr, &player.dest);
+        player.Render(m_renderer);
         SDL_RenderPresent(m_renderer);
 
         SDL_Delay(16);
