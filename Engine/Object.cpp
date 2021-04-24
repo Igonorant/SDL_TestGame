@@ -68,3 +68,24 @@ void Object::setVelocityY(const int vy)
     m_vy = vy;
 }
 
+Projectile::Projectile()
+    : Object(nullptr)
+{
+}
+
+Projectile::Projectile(SDL_Texture* texture, const int x, const int y, const int vx,
+                       const int vy, const int lifespan_ms, const int damage)
+    : Object(texture, x, y)
+    , m_lifespan_ms(lifespan_ms)
+    , m_damage(damage)
+{
+    setVelocity(vx, vy);
+}
+
+void Projectile::update(const int dt_ms)
+{
+    Object::update();
+    m_lifespan_ms -= dt_ms;
+    m_endedLifespan = m_lifespan_ms <= 0;
+}
+

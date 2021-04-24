@@ -25,3 +25,17 @@ class Object {
     int m_vx = 0;
     int m_vy = 0;
 };
+
+class Projectile : public Object {
+  public:
+    Projectile();
+    Projectile(SDL_Texture* texture, const int x, const int y, const int vx,
+               const int vy, const int lifespan_ms, const int damage);
+  public:
+    void update(const int dt_ms);
+    bool endedLifespan() const { return m_endedLifespan; }
+  private:
+    int m_lifespan_ms = 0;
+    int m_damage = 0;
+    bool m_endedLifespan = false;
+};
