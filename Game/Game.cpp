@@ -45,6 +45,7 @@ void Game::StartGame() {
         SDL_RenderClear(m_renderer);
 
         processInput();
+        m_player.update();
 
         m_player.render(m_renderer);
         SDL_RenderPresent(m_renderer);
@@ -77,20 +78,30 @@ void Game::processKeydown(SDL_KeyboardEvent* event)
     }
     switch (event->keysym.scancode) {
         case SDL_SCANCODE_UP:
-            m_player.updatePos(0, -5); break;
+            m_player.setVelocityY(-5); break;
         case SDL_SCANCODE_DOWN:
-            m_player.updatePos(0, 5); break;
+            m_player.setVelocityY(5); break;
         case SDL_SCANCODE_LEFT:
-            m_player.updatePos(-5, 0); break;
+            m_player.setVelocityX(-5); break;
         case SDL_SCANCODE_RIGHT:
-            m_player.updatePos(5, 0); break;
+            m_player.setVelocityX(5); break;
         default: break;
     }
 }
 
 void Game::processKeyup(SDL_KeyboardEvent* event)
 {
-
+    if (event->repeat != 0) {
+        return;
+    }
+    switch (event->keysym.scancode) {
+        case SDL_SCANCODE_UP:
+        case SDL_SCANCODE_DOWN:
+        case SDL_SCANCODE_LEFT:
+        case SDL_SCANCODE_RIGHT:
+            m_player.setVelocity(0, 0); break;
+        default: break;
+    }
 }
 
 void Game::loadAssets() {

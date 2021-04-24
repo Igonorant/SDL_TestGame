@@ -40,9 +40,31 @@ void Object::render(SDL_Renderer* renderer)
     SDL_RenderCopy(renderer, m_texture, nullptr, &m_pos);
 }
 
+void Object::update()
+{
+    m_pos.x += m_vx;
+    m_pos.y += m_vy;
+}
+
 void Object::updatePos(const int x, const int y)
 {
     m_pos.x += x;
     m_pos.y += y;
+}
+
+void Object::setVelocity(const int vx, const int vy)
+{
+    m_vx = vx;
+    m_vy = vy;
+}
+
+void Object::setVelocityX(const int vx)
+{
+    m_vx = vx;
+}
+
+void Object::setVelocityY(const int vy)
+{
+    m_vy = vy;
 }
 
