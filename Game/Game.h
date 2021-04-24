@@ -3,6 +3,7 @@
 #include <SDL2/SDL.h>
 #include "../Engine/TextureManager.h"
 #include <memory>
+#include "../Engine/Object.h"
 
 class Game {
   public:
@@ -17,7 +18,9 @@ class Game {
     void StartGame();
 
   private:
-    void ProcessInput();
+    void processInput();
+    void processKeydown(SDL_KeyboardEvent* event);
+    void processKeyup(SDL_KeyboardEvent* event);
     void loadAssets();
 
   private:
@@ -29,4 +32,6 @@ class Game {
     SDL_Renderer* m_renderer = nullptr;
     SDL_Window* m_window = nullptr;
     std::shared_ptr<TextureManager> m_textureMgr = nullptr;
+
+    Object m_player;
 };

@@ -1,7 +1,6 @@
 #include "Game.h"
 #include <iostream>
 #include <vector>
-#include "../Engine/Object.h"
 
 Game::Game() {
     int rendererFlags, windowFlags;
@@ -24,6 +23,9 @@ Game::Game() {
         std::cout << "Couldn't create renderer: " << SDL_GetError() << std::endl;
     } else {
         m_textureMgr = std::make_shared<TextureManager>(m_renderer);
+        loadAssets();
+        m_player.setPos(100, 100);
+        m_player.setTexture(m_textureMgr->GetTexture("Assets/character.png"));
     }
 
     m_isInitialized = bool(m_window) && bool(m_renderer);
@@ -37,17 +39,14 @@ Game::~Game() {
 void Game::StartGame() {
     m_quitGame |= !m_isInitialized;
 
-    loadAssets();
-    Object player(m_textureMgr->GetTexture("Assets/character.png"), 100, 100);
-
     while (!m_quitGame)
     {
         SDL_SetRenderDrawColor(m_renderer, 96, 128, 255, 255);
         SDL_RenderClear(m_renderer);
 
-        ProcessInput();
+        processInput();
 
-        player.Render(m_renderer);
+        m_player.render(m_renderer);
         SDL_RenderPresent(m_renderer);
 
         SDL_Delay(16);
@@ -55,15 +54,43 @@ void Game::StartGame() {
     return;
 }
 
-void Game::ProcessInput() {
+void Game::processInput()
+{
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         switch (event.type) {
             case SDL_QUIT:
                 m_quitGame = true; break;
+            case SDL_KEYDOWN:
+                processKeydown(&event.key); break;
+            case SDL_KEYUP:
+                processKeyup(&event.key); break;
             default: break;
         }
     }
+}
+
+void Game::processKeydown(SDL_KeyboardEvent* event)
+{
+    if (event->repeat != 0) {
+        return;
+    }
+    switch (event->keysym.scancode) {
+        case SDL_SCANCODE_UP:
+            m_player.updatePos(0, -5); break;
+        case SDL_SCANCODE_DOWN:
+            m_player.updatePos(0, 5); break;
+        case SDL_SCANCODE_LEFT:
+            m_player.updatePos(-5, 0); break;
+        case SDL_SCANCODE_RIGHT:
+            m_player.updatePos(5, 0); break;
+        default: break;
+    }
+}
+
+void Game::processKeyup(SDL_KeyboardEvent* event)
+{
+
 }
 
 void Game::loadAssets() {
