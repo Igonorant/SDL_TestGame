@@ -1,6 +1,7 @@
 #include "Game.h"
 #include <iostream>
 #include <vector>
+#include <algorithm>
 
 Game::Game() {
     int rendererFlags, windowFlags;
@@ -38,19 +39,29 @@ Game::~Game() {
 
 void Game::StartGame() {
     m_quitGame |= !m_isInitialized;
-
+    int dt_ms = 16;
     while (!m_quitGame)
     {
+        processInput();
+        m_player.update();
+        for (auto& bullet : m_playerBullets) {
+            bullet.update(dt_ms);
+        }
+        std::remove_if(m_playerBullets.begin(), m_playerBullets.end(), [] (const Projectile& bullet) { return bullet.endedLifespan(); });
+        if (m_playerBullets.size() == 1 && m_playerBullets.front().endedLifespan()) {
+            m_playerBullets.pop_back();
+        }
+
         SDL_SetRenderDrawColor(m_renderer, 96, 128, 255, 255);
         SDL_RenderClear(m_renderer);
 
-        processInput();
-        m_player.update();
-
         m_player.render(m_renderer);
+        for (auto& bullet : m_playerBullets) {
+            bullet.render(m_renderer);
+        }
         SDL_RenderPresent(m_renderer);
 
-        SDL_Delay(16);
+        SDL_Delay(dt_ms);
     }
     return;
 }
@@ -85,6 +96,12 @@ void Game::processKeydown(SDL_KeyboardEvent* event)
             m_player.setVelocityX(-5); break;
         case SDL_SCANCODE_RIGHT:
             m_player.setVelocityX(5); break;
+        case SDL_SCANCODE_LCTRL:
+            m_playerBullets.emplace_back(m_textureMgr->GetTexture("Assets/player_bullet.png"),
+                                         m_player.getPosX() + 10, m_player.getPosY(),
+                                         5 /*vx*/, m_player.getVelocityY(),
+                                         1500 /*lifespan_ms*/, 10 /*damage*/);
+            break;
         default: break;
     }
 }
@@ -106,7 +123,8 @@ void Game::processKeyup(SDL_KeyboardEvent* event)
 
 void Game::loadAssets() {
     std::vector<std::string> assetsToLoad = {
-        "Assets/character.png"
+        "Assets/character.png",
+        "Assets/player_bullet.png"
     };
     for (const auto& filePath : assetsToLoad) {
         m_textureMgr->GetTexture(filePath);

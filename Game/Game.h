@@ -4,6 +4,7 @@
 #include "../Engine/TextureManager.h"
 #include <memory>
 #include "../Engine/Object.h"
+#include <vector>
 
 class Game {
   public:
@@ -34,4 +35,5 @@ class Game {
     std::shared_ptr<TextureManager> m_textureMgr = nullptr;
 
     Object m_player;
+    std::vector<Projectile> m_playerBullets;
 };

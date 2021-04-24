@@ -18,6 +18,10 @@ class Object {
     void setVelocity(const int vx, const int vy);
     void setVelocityX(const int vx);
     void setVelocityY(const int vy);
+    int getPosX() const { return m_pos.x; }
+    int getPosY() const { return m_pos.y; }
+    int getVelocityX() const { return m_vx; }
+    int getVelocityY() const { return m_vy; }
 
   private:
     SDL_Texture* m_texture;
