@@ -96,7 +96,7 @@ void Game::processKeydown(SDL_KeyboardEvent* event)
             m_player.setVelocityX(5); break;
         case SDL_SCANCODE_LCTRL:
             m_playerBullets.emplace_back(m_textureMgr->GetTexture("Assets/player_bullet.png"),
-                                         m_player.getPosX() + 10, m_player.getPosY(),
+                                         m_player.getPosX() + 10, m_player.getPosY() + 10,
                                          5 /*vx*/, m_player.getVelocityY(),
                                          1500 /*lifespan_ms*/, 10 /*damage*/);
             m_playerBullets.back().scale(0.025f);
