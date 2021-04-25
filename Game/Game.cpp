@@ -99,6 +99,7 @@ void Game::processKeydown(SDL_KeyboardEvent* event)
                                          m_player.getPosX() + 10, m_player.getPosY(),
                                          5 /*vx*/, m_player.getVelocityY(),
                                          1500 /*lifespan_ms*/, 10 /*damage*/);
+            m_playerBullets.back().scale(0.025f);
             break;
         default: break;
     }

@@ -22,6 +22,7 @@ class Object {
     int getPosY() const { return m_pos.y; }
     int getVelocityX() const { return m_vx; }
     int getVelocityY() const { return m_vy; }
+    void scale(const float factor);
 
   private:
     SDL_Texture* m_texture;

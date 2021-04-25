@@ -1,5 +1,6 @@
 #include "Object.h"
-
+#include <cmath>
+#include <assert.h>
 
 Object::Object()
     : Object(nullptr)
@@ -87,5 +88,12 @@ void Projectile::update(const int dt_ms)
     Object::update();
     m_lifespan_ms -= dt_ms;
     m_endedLifespan = m_lifespan_ms <= 0;
+}
+
+void Object::scale(const float factor)
+{
+    assert(factor > 0);
+    m_pos.h = std::ceil(m_pos.h*factor);
+    m_pos.w = std::ceil(m_pos.w*factor);
 }
 
