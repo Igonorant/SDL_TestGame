@@ -47,11 +47,9 @@ void Game::StartGame() {
         for (auto& bullet : m_playerBullets) {
             bullet.update(dt_ms);
         }
-        std::remove_if(m_playerBullets.begin(), m_playerBullets.end(), [] (const Projectile& bullet) { return bullet.endedLifespan(); });
-        if (m_playerBullets.size() == 1 && m_playerBullets.front().endedLifespan()) {
-            m_playerBullets.pop_back();
-        }
-
+        m_playerBullets.erase(std::remove_if(m_playerBullets.begin(), m_playerBullets.end(),
+                                    [] (const Projectile& bullet) { return bullet.endedLifespan(); }),
+                              m_playerBullets.end());
         SDL_SetRenderDrawColor(m_renderer, 96, 128, 255, 255);
         SDL_RenderClear(m_renderer);
 
