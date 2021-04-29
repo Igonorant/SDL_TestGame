@@ -3,7 +3,7 @@
 #include <SDL2/SDL.h>
 #include "../Engine/TextureManager.h"
 #include <memory>
-#include "../Engine/Object.h"
+#include "../Engine/Components.h"
 #include <vector>
 
 class Game {
