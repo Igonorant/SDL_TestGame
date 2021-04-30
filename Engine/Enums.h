@@ -1,3 +1,5 @@
+#pragma once
+
 enum class KbdEvents {
   Up_KeyDown,
   Up_KeyUp,

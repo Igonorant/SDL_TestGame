@@ -43,8 +43,8 @@ void Game::StartGame() {
   m_quitGame |= !m_isInitialized;
   int dt_ms = 16;
   while (!m_quitGame) {
-    processInput();
-    m_player.update();
+    const auto &events = processInput();
+    m_player.update(dt_ms, events);
     for (auto &bullet : m_playerBullets) {
       bullet.update(dt_ms);
     }
@@ -105,26 +105,22 @@ std::vector<KbdEvents> Game::processKeydown(SDL_KeyboardEvent *event) {
   switch (event->keysym.scancode) {
   case SDL_SCANCODE_UP:
     ret.push_back(KbdEvents::Up_KeyDown);
-    m_player.setVelocityY(-5);
     break;
   case SDL_SCANCODE_DOWN:
     ret.push_back(KbdEvents::Down_KeyDown);
-    m_player.setVelocityY(5);
     break;
   case SDL_SCANCODE_LEFT:
     ret.push_back(KbdEvents::Left_KeyDown);
-    m_player.setVelocityX(-5);
     break;
   case SDL_SCANCODE_RIGHT:
     ret.push_back(KbdEvents::Right_KeyDown);
-    m_player.setVelocityX(5);
     break;
   case SDL_SCANCODE_LCTRL:
     ret.push_back(KbdEvents::LCtrl_KeyDown);
     m_playerBullets.emplace_back(
         m_textureMgr->GetTexture("Assets/player_bullet.png"),
-        m_player.getPosX() + 10, m_player.getPosY() + 10, 5 /*vx*/,
-        m_player.getVelocityY(), 1500 /*lifespan_ms*/, 10 /*damage*/);
+        m_player.getPosX() + 15, m_player.getPosY() + 20, 1 /*vx*/,
+        m_player.getVelocityY(), 500 /*lifespan_ms*/, 10 /*damage*/);
     m_playerBullets.back().scale(0.025f);
     break;
   default:
@@ -141,19 +137,15 @@ std::vector<KbdEvents> Game::processKeyup(SDL_KeyboardEvent *event) {
   switch (event->keysym.scancode) {
   case SDL_SCANCODE_UP:
     ret.push_back(KbdEvents::Up_KeyUp);
-    m_player.setVelocity(0, 0);
     break;
   case SDL_SCANCODE_DOWN:
     ret.push_back(KbdEvents::Down_KeyUp);
-    m_player.setVelocity(0, 0);
     break;
   case SDL_SCANCODE_LEFT:
     ret.push_back(KbdEvents::Left_KeyUp);
-    m_player.setVelocity(0, 0);
     break;
   case SDL_SCANCODE_RIGHT:
     ret.push_back(KbdEvents::Right_KeyUp);
-    m_player.setVelocity(0, 0);
     break;
   default:
     break;

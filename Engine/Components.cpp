@@ -2,7 +2,6 @@
 #include <assert.h>
 #include <cmath>
 
-
 Object::Object() : Object(nullptr) {}
 
 Object::Object(SDL_Texture *texture) : Object(texture, 0, 0) {}
@@ -30,9 +29,9 @@ void Object::render(SDL_Renderer *renderer) {
   SDL_RenderCopy(renderer, m_texture, nullptr, &m_pos);
 }
 
-void Object::update() {
-  m_pos.x += m_vx;
-  m_pos.y += m_vy;
+void Object::update(const int dt_ms) {
+  m_pos.x += m_vx * dt_ms;
+  m_pos.y += m_vy * dt_ms;
 }
 
 void Object::updatePos(const int x, const int y) {
@@ -59,7 +58,7 @@ Projectile::Projectile(SDL_Texture *texture, const int x, const int y,
 }
 
 void Projectile::update(const int dt_ms) {
-  Object::update();
+  Object::update(dt_ms);
   m_lifespan_ms -= dt_ms;
   m_endedLifespan = m_lifespan_ms <= 0;
 }
@@ -68,4 +67,37 @@ void Object::scale(const float factor) {
   assert(factor > 0);
   m_pos.h = std::ceil(m_pos.h * factor);
   m_pos.w = std::ceil(m_pos.w * factor);
+}
+
+Player::Player() : Object() {}
+
+Player::Player(SDL_Texture *texture, const SDL_Rect &rect)
+    : Object(texture, rect) {}
+
+void Player::update(const int dt_ms, const std::vector<KbdEvents> &events) {
+  for (const auto event : events) {
+    switch (event) {
+    case KbdEvents::Up_KeyDown:
+      setVelocityY(-1);
+      break;
+    case KbdEvents::Down_KeyDown:
+      setVelocityY(1);
+      break;
+    case KbdEvents::Left_KeyDown:
+      setVelocityX(-1);
+      break;
+    case KbdEvents::Right_KeyDown:
+      setVelocityX(1);
+      break;
+    case KbdEvents::Up_KeyUp:
+    case KbdEvents::Down_KeyUp:
+    case KbdEvents::Left_KeyUp:
+    case KbdEvents::Right_KeyUp:
+      setVelocity(0, 0);
+      break;
+    default:
+      break;
+    }
+  }
+  Object::update(dt_ms);
 }

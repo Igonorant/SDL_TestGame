@@ -35,6 +35,6 @@ private:
   SDL_Window *m_window = nullptr;
   std::shared_ptr<TextureManager> m_textureMgr = nullptr;
 
-  Object m_player;
+  Player m_player;
   std::vector<Projectile> m_playerBullets;
 };

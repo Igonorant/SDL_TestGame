@@ -1,6 +1,8 @@
 #pragma once
 
+#include "Enums.h"
 #include <SDL2/SDL.h>
+#include <vector>
 
 class Object {
 public:
@@ -13,7 +15,7 @@ public:
   void setTexture(SDL_Texture *texture);
   void setPos(const int x, const int y);
   void render(SDL_Renderer *renderer);
-  void update();
+  virtual void update(const int dt_ms);
   void updatePos(const int x, const int y);
   void setVelocity(const int vx, const int vy);
   void setVelocityX(const int vx);
@@ -29,6 +31,18 @@ private:
   SDL_Rect m_pos;
   int m_vx = 0;
   int m_vy = 0;
+};
+
+class Player : public Object {
+public:
+  Player();
+  Player(SDL_Texture *texture, const SDL_Rect &rect);
+
+public:
+  void update(const int dt_ms, const std::vector<KbdEvents> &events);
+
+private:
+  int health = 100;
 };
 
 class Projectile : public Object {
