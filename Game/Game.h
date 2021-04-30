@@ -1,11 +1,11 @@
 #pragma once
 
 #include "../Engine/Components.h"
+#include "../Engine/Enums.h"
 #include "../Engine/TextureManager.h"
 #include <SDL2/SDL.h>
 #include <memory>
 #include <vector>
-
 
 class Game {
 public:
@@ -20,9 +20,9 @@ public:
   void StartGame();
 
 private:
-  void processInput();
-  void processKeydown(SDL_KeyboardEvent *event);
-  void processKeyup(SDL_KeyboardEvent *event);
+  std::vector<KbdEvents> processInput();
+  std::vector<KbdEvents> processKeydown(SDL_KeyboardEvent *event);
+  std::vector<KbdEvents> processKeyup(SDL_KeyboardEvent *event);
   void loadAssets();
 
 private:

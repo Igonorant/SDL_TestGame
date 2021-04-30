@@ -3,7 +3,6 @@
 #include <iostream>
 #include <vector>
 
-
 Game::Game() {
   int rendererFlags, windowFlags;
   rendererFlags = SDL_RENDERER_ACCELERATED;
@@ -69,43 +68,59 @@ void Game::StartGame() {
   return;
 }
 
-void Game::processInput() {
+std::vector<KbdEvents> Game::processInput() {
+  std::vector<KbdEvents> ret;
   SDL_Event event;
   while (SDL_PollEvent(&event)) {
     switch (event.type) {
-    case SDL_QUIT:
+    case SDL_QUIT: {
       m_quitGame = true;
       break;
-    case SDL_KEYDOWN:
-      processKeydown(&event.key);
-      break;
-    case SDL_KEYUP:
-      processKeyup(&event.key);
-      break;
-    default:
+    }
+    case SDL_KEYDOWN: {
+      const auto &keysDown = processKeydown(&event.key);
+      ret.reserve(ret.size() + keysDown.size());
+      ret.insert(ret.end(), keysDown.begin(), keysDown.end());
       break;
     }
+    case SDL_KEYUP: {
+      const auto &keysUp = processKeyup(&event.key);
+      ret.reserve(ret.size() + keysUp.size());
+      ret.insert(ret.end(), keysUp.begin(), keysUp.end());
+      break;
+    }
+    default: {
+      break;
+    }
+    }
   }
+  return ret;
 }
 
-void Game::processKeydown(SDL_KeyboardEvent *event) {
+std::vector<KbdEvents> Game::processKeydown(SDL_KeyboardEvent *event) {
+  std::vector<KbdEvents> ret;
   if (event->repeat != 0) {
-    return;
+    return ret;
   }
   switch (event->keysym.scancode) {
   case SDL_SCANCODE_UP:
+    ret.push_back(KbdEvents::Up_KeyDown);
     m_player.setVelocityY(-5);
     break;
   case SDL_SCANCODE_DOWN:
+    ret.push_back(KbdEvents::Down_KeyDown);
     m_player.setVelocityY(5);
     break;
   case SDL_SCANCODE_LEFT:
+    ret.push_back(KbdEvents::Left_KeyDown);
     m_player.setVelocityX(-5);
     break;
   case SDL_SCANCODE_RIGHT:
+    ret.push_back(KbdEvents::Right_KeyDown);
     m_player.setVelocityX(5);
     break;
   case SDL_SCANCODE_LCTRL:
+    ret.push_back(KbdEvents::LCtrl_KeyDown);
     m_playerBullets.emplace_back(
         m_textureMgr->GetTexture("Assets/player_bullet.png"),
         m_player.getPosX() + 10, m_player.getPosY() + 10, 5 /*vx*/,
@@ -115,22 +130,35 @@ void Game::processKeydown(SDL_KeyboardEvent *event) {
   default:
     break;
   }
+  return ret;
 }
 
-void Game::processKeyup(SDL_KeyboardEvent *event) {
+std::vector<KbdEvents> Game::processKeyup(SDL_KeyboardEvent *event) {
+  std::vector<KbdEvents> ret;
   if (event->repeat != 0) {
-    return;
+    return ret;
   }
   switch (event->keysym.scancode) {
   case SDL_SCANCODE_UP:
+    ret.push_back(KbdEvents::Up_KeyUp);
+    m_player.setVelocity(0, 0);
+    break;
   case SDL_SCANCODE_DOWN:
+    ret.push_back(KbdEvents::Down_KeyUp);
+    m_player.setVelocity(0, 0);
+    break;
   case SDL_SCANCODE_LEFT:
+    ret.push_back(KbdEvents::Left_KeyUp);
+    m_player.setVelocity(0, 0);
+    break;
   case SDL_SCANCODE_RIGHT:
+    ret.push_back(KbdEvents::Right_KeyUp);
     m_player.setVelocity(0, 0);
     break;
   default:
     break;
   }
+  return ret;
 }
 
 void Game::loadAssets() {
