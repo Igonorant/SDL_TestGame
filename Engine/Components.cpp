@@ -6,8 +6,8 @@ Object::Object() : Object(nullptr) {}
 
 Object::Object(SDL_Texture *texture) : Object(texture, 0, 0) {}
 
-Object::Object(SDL_Texture *texture, const int x, const int y)
-    : Object(texture, {x, y}) {}
+Object::Object(SDL_Texture *texture, const float x, const float y)
+    : Object(texture, {int(x), int(y)}) {}
 
 Object::Object(SDL_Texture *texture, const SDL_Rect &rect)
     : m_texture(texture) {
@@ -20,7 +20,7 @@ void Object::setTexture(SDL_Texture *texture) {
   SDL_QueryTexture(m_texture, nullptr, nullptr, &m_pos.w, &m_pos.h);
 }
 
-void Object::setPos(const int x, const int y) {
+void Object::setPos(const float x, const float y) {
   m_pos.x = x;
   m_pos.y = y;
 }
@@ -34,24 +34,24 @@ void Object::update(const int dt_ms) {
   m_pos.y += m_vy * dt_ms;
 }
 
-void Object::updatePos(const int x, const int y) {
+void Object::updatePos(const float x, const float y) {
   m_pos.x += x;
   m_pos.y += y;
 }
 
-void Object::setVelocity(const int vx, const int vy) {
+void Object::setVelocity(const float vx, const float vy) {
   m_vx = vx;
   m_vy = vy;
 }
 
-void Object::setVelocityX(const int vx) { m_vx = vx; }
+void Object::setVelocityX(const float vx) { m_vx = vx; }
 
-void Object::setVelocityY(const int vy) { m_vy = vy; }
+void Object::setVelocityY(const float vy) { m_vy = vy; }
 
 Projectile::Projectile() : Object(nullptr) {}
 
-Projectile::Projectile(SDL_Texture *texture, const int x, const int y,
-                       const int vx, const int vy, const int lifespan_ms,
+Projectile::Projectile(SDL_Texture *texture, const float x, const float y,
+                       const float vx, const float vy, const int lifespan_ms,
                        const int damage)
     : Object(texture, x, y), m_lifespan_ms(lifespan_ms), m_damage(damage) {
   setVelocity(vx, vy);
@@ -78,16 +78,16 @@ void Player::update(const int dt_ms, const std::vector<KbdEvents> &events) {
   for (const auto event : events) {
     switch (event) {
     case KbdEvents::Up_KeyDown:
-      setVelocityY(-1);
+      setVelocityY(-0.1f);
       break;
     case KbdEvents::Down_KeyDown:
-      setVelocityY(1);
+      setVelocityY(0.1f);
       break;
     case KbdEvents::Left_KeyDown:
-      setVelocityX(-1);
+      setVelocityX(-0.1f);
       break;
     case KbdEvents::Right_KeyDown:
-      setVelocityX(1);
+      setVelocityX(0.1f);
       break;
     case KbdEvents::Up_KeyUp:
     case KbdEvents::Down_KeyUp:
