@@ -12,3 +12,5 @@ enum class KbdEvents {
   LCtrl_KeyDown,
   LCtrl_KeyUp
 };
+
+enum class ObjState { Firing, Moving, Idle };

@@ -15,8 +15,8 @@ public:
   void render(SDL_Renderer *renderer);
   virtual void update(const int dt_ms);
   void setVelocity(const float vx, const float vy);
-  void setVelocityX(const float vx);
-  void setVelocityY(const float vy);
+  void setVelocityX(const float vx) { m_vx = vx; }
+  void setVelocityY(const float vy) { m_vy = vy; }
   float getPosX() const { return m_pos.x; }
   float getPosY() const { return m_pos.y; }
   int getWidth() const { return m_pos.w; }
@@ -25,12 +25,15 @@ public:
   float getVelocityY() const { return m_vy; }
   void scale(const float factor);
   bool isColiding(const Object &obj);
+  void setState(const ObjState state) { m_state = state; }
+  ObjState getState() { return m_state; }
 
 private:
   SDL_Texture *m_texture;
   SDL_Rect m_pos;
   float m_vx = 0;
   float m_vy = 0;
+  ObjState m_state = ObjState::Idle;
 };
 
 class Player : public Object {
@@ -42,7 +45,7 @@ public:
   void update(const int dt_ms, const std::vector<KbdEvents> &events);
 
 private:
-  int health = 100;
+  int m_health = 100;
 };
 
 class Projectile : public Object {

@@ -29,13 +29,9 @@ void Object::update(const int dt_ms) {
 }
 
 void Object::setVelocity(const float vx, const float vy) {
-  m_vx = vx;
-  m_vy = vy;
+  setVelocityX(vx);
+  setVelocityY(vy);
 }
-
-void Object::setVelocityX(const float vx) { m_vx = vx; }
-
-void Object::setVelocityY(const float vy) { m_vy = vy; }
 
 Projectile::Projectile() : Object() {}
 
@@ -92,21 +88,32 @@ void Player::update(const int dt_ms, const std::vector<KbdEvents> &events) {
     switch (event) {
     case KbdEvents::Up_KeyDown:
       setVelocityY(-0.1f);
+      setState(ObjState::Moving);
       break;
     case KbdEvents::Down_KeyDown:
       setVelocityY(0.1f);
+      setState(ObjState::Moving);
       break;
     case KbdEvents::Left_KeyDown:
       setVelocityX(-0.1f);
+      setState(ObjState::Moving);
       break;
     case KbdEvents::Right_KeyDown:
       setVelocityX(0.1f);
+      setState(ObjState::Moving);
       break;
     case KbdEvents::Up_KeyUp:
     case KbdEvents::Down_KeyUp:
     case KbdEvents::Left_KeyUp:
     case KbdEvents::Right_KeyUp:
       setVelocity(0, 0);
+      setState(ObjState::Idle);
+      break;
+    case KbdEvents::LCtrl_KeyDown:
+      setState(ObjState::Firing);
+      break;
+    case KbdEvents::LCtrl_KeyUp:
+      setState(ObjState::Idle);
       break;
     default:
       break;
