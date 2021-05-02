@@ -10,10 +10,8 @@ public:
   Object(SDL_Texture *texture, const SDL_Rect &pos);
 
 public:
-  void setTexture(SDL_Texture *texture);
+  // Movement and position
   void setPos(const float x, const float y);
-  void render(SDL_Renderer *renderer);
-  virtual void update(const int dt_ms);
   void setVelocity(const float vx, const float vy);
   void setVelocityX(const float vx) { m_vx = vx; }
   void setVelocityY(const float vy) { m_vy = vy; }
@@ -23,6 +21,13 @@ public:
   int getHeight() const { return m_pos.h; }
   float getVelocityX() const { return m_vx; }
   float getVelocityY() const { return m_vy; }
+
+  // Render related
+  void setTexture(SDL_Texture *texture);
+  void render(SDL_Renderer *renderer);
+
+  // Others
+  virtual void update(const int dt_ms);
   void scale(const float factor);
   bool isColiding(const Object &obj);
   void setState(const ObjState state) { m_state = state; }
