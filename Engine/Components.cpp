@@ -53,10 +53,33 @@ void Projectile::update(const int dt_ms) {
   m_endedLifespan = m_lifespan_ms <= 0;
 }
 
+void Projectile::hitted() {
+  m_lifespan_ms = 0;
+  m_endedLifespan = true;
+}
+
 void Object::scale(const float factor) {
   assert(factor > 0);
   m_pos.h = std::ceil(m_pos.h * factor);
   m_pos.w = std::ceil(m_pos.w * factor);
+}
+
+bool Object::isColiding(const Object &obj) {
+  struct vertex {
+    float x;
+    float y;
+  };
+
+  const vertex currTopLeft = {m_pos.x, m_pos.y};
+  const vertex currBottomRight = {m_pos.x + m_pos.w, m_pos.y + m_pos.h};
+  const vertex objTopLeft = {obj.getPosX(), obj.getPosY()};
+  const vertex objBottomRight = {obj.getPosX() + obj.getWidth(),
+                                 obj.getPosY() + obj.getHeight()};
+
+  return currTopLeft.x <= objBottomRight.x &&
+         currTopLeft.y <= objBottomRight.y &&
+         currBottomRight.x >= objBottomRight.x &&
+         currBottomRight.y >= objBottomRight.y;
 }
 
 Player::Player() : Object() {}

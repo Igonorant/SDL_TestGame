@@ -37,4 +37,6 @@ private:
 
   Player m_player;
   std::vector<Projectile> m_playerBullets;
+
+  Object m_dummy;
 };

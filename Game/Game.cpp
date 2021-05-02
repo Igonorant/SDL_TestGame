@@ -27,8 +27,10 @@ Game::Game() {
   } else {
     m_textureMgr = std::make_shared<TextureManager>(m_renderer);
     loadAssets();
-    m_player.setPos(100, 100);
+    m_player.setPos(100, 250);
     m_player.setTexture(m_textureMgr->GetTexture("Assets/character.png"));
+    m_dummy.setPos(500, 250);
+    m_dummy.setTexture(m_textureMgr->GetTexture("Assets/dummy.png"));
   }
 
   m_isInitialized = bool(m_window) && bool(m_renderer);
@@ -44,20 +46,27 @@ void Game::StartGame() {
   int dt_ms = 16;
   while (!m_quitGame) {
     const auto &events = processInput();
+
     m_player.update(dt_ms, events);
     for (auto &bullet : m_playerBullets) {
       bullet.update(dt_ms);
+      if (m_dummy.isColiding(bullet)) {
+        bullet.hitted();
+      }
     }
+
     m_playerBullets.erase(std::remove_if(m_playerBullets.begin(),
                                          m_playerBullets.end(),
                                          [](const Projectile &bullet) {
                                            return bullet.endedLifespan();
                                          }),
                           m_playerBullets.end());
+
     SDL_SetRenderDrawColor(m_renderer, 96, 128, 255, 255);
     SDL_RenderClear(m_renderer);
 
     m_player.render(m_renderer);
+    m_dummy.render(m_renderer);
     for (auto &bullet : m_playerBullets) {
       bullet.render(m_renderer);
     }
@@ -154,8 +163,8 @@ std::vector<KbdEvents> Game::processKeyup(SDL_KeyboardEvent *event) {
 }
 
 void Game::loadAssets() {
-  std::vector<std::string> assetsToLoad = {"Assets/character.png",
-                                           "Assets/player_bullet.png"};
+  std::vector<std::string> assetsToLoad = {
+      "Assets/character.png", "Assets/dummy.png", "Assets/player_bullet.png"};
   for (const auto &filePath : assetsToLoad) {
     m_textureMgr->GetTexture(filePath);
   }

@@ -19,9 +19,12 @@ public:
   void setVelocityY(const float vy);
   float getPosX() const { return m_pos.x; }
   float getPosY() const { return m_pos.y; }
+  int getWidth() const { return m_pos.w; }
+  int getHeight() const { return m_pos.h; }
   float getVelocityX() const { return m_vx; }
   float getVelocityY() const { return m_vy; }
   void scale(const float factor);
+  bool isColiding(const Object &obj);
 
 private:
   SDL_Texture *m_texture;
@@ -51,6 +54,7 @@ public:
 public:
   void update(const int dt_ms);
   bool endedLifespan() const { return m_endedLifespan; }
+  void hitted();
 
 private:
   int m_lifespan_ms = 0;
