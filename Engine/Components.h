@@ -48,9 +48,12 @@ public:
 
 public:
   void update(const int dt_ms, const std::vector<KbdEvents> &events);
+  bool shouldSpawnBullet();
 
 private:
   int m_health = 100;
+  int m_bulletTimer_ms = 0;
+  int m_fireRate_ms = 100; // fire every X ms
 };
 
 class Projectile : public Object {

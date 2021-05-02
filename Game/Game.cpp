@@ -45,9 +45,22 @@ void Game::StartGame() {
   m_quitGame |= !m_isInitialized;
   int dt_ms = 16;
   while (!m_quitGame) {
+    // Get events
     const auto &events = processInput();
 
+    // Update player
     m_player.update(dt_ms, events);
+
+    // Spawn bullets
+    if (m_player.shouldSpawnBullet()) {
+      m_playerBullets.emplace_back(
+          m_textureMgr->GetTexture("Assets/player_bullet.png"),
+          m_player.getPosX() + 15.0f, m_player.getPosY() + 20.0f, 0.5f /*vx*/,
+          m_player.getVelocityY(), 1000 /*lifespan_ms*/, 10 /*damage*/);
+      m_playerBullets.back().scale(0.025f);
+    }
+
+    // Update bullets
     for (auto &bullet : m_playerBullets) {
       bullet.update(dt_ms);
       if (m_dummy.isColiding(bullet)) {
@@ -55,6 +68,7 @@ void Game::StartGame() {
       }
     }
 
+    // Remove dying bullets
     m_playerBullets.erase(std::remove_if(m_playerBullets.begin(),
                                          m_playerBullets.end(),
                                          [](const Projectile &bullet) {
@@ -62,14 +76,18 @@ void Game::StartGame() {
                                          }),
                           m_playerBullets.end());
 
+    // Render background
     SDL_SetRenderDrawColor(m_renderer, 96, 128, 255, 255);
     SDL_RenderClear(m_renderer);
 
+    // Render objects
     m_player.render(m_renderer);
     m_dummy.render(m_renderer);
     for (auto &bullet : m_playerBullets) {
       bullet.render(m_renderer);
     }
+
+    // Present rendered objects
     SDL_RenderPresent(m_renderer);
 
     SDL_Delay(dt_ms);
@@ -126,11 +144,6 @@ std::vector<KbdEvents> Game::processKeydown(SDL_KeyboardEvent *event) {
     break;
   case SDL_SCANCODE_LCTRL:
     ret.push_back(KbdEvents::LCtrl_KeyDown);
-    m_playerBullets.emplace_back(
-        m_textureMgr->GetTexture("Assets/player_bullet.png"),
-        m_player.getPosX() + 15, m_player.getPosY() + 20, 1 /*vx*/,
-        m_player.getVelocityY(), 500 /*lifespan_ms*/, 10 /*damage*/);
-    m_playerBullets.back().scale(0.025f);
     break;
   default:
     break;
@@ -155,6 +168,9 @@ std::vector<KbdEvents> Game::processKeyup(SDL_KeyboardEvent *event) {
     break;
   case SDL_SCANCODE_RIGHT:
     ret.push_back(KbdEvents::Right_KeyUp);
+    break;
+  case SDL_SCANCODE_LCTRL:
+    ret.push_back(KbdEvents::LCtrl_KeyUp);
     break;
   default:
     break;

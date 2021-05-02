@@ -84,6 +84,7 @@ Player::Player(SDL_Texture *texture, const SDL_Rect &rect)
     : Object(texture, rect) {}
 
 void Player::update(const int dt_ms, const std::vector<KbdEvents> &events) {
+  // Handle events
   for (const auto event : events) {
     switch (event) {
     case KbdEvents::Up_KeyDown:
@@ -119,5 +120,22 @@ void Player::update(const int dt_ms, const std::vector<KbdEvents> &events) {
       break;
     }
   }
+
+  // Update bullet timer
+  if (getState() == ObjState::Firing) {
+    m_bulletTimer_ms += dt_ms;
+  } else {
+    m_bulletTimer_ms = 0;
+  }
+
+  // Basic object update
   Object::update(dt_ms);
+}
+
+bool Player::shouldSpawnBullet() {
+  if (getState() == ObjState::Firing && m_bulletTimer_ms >= m_fireRate_ms) {
+    m_bulletTimer_ms %= m_fireRate_ms;
+    return true;
+  }
+  return false;
 }
