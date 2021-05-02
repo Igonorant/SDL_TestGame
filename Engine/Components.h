@@ -7,16 +7,13 @@
 class Object {
 public:
   Object();
-  Object(SDL_Texture *texture);
-  Object(SDL_Texture *texture, const float x, const float y);
-  Object(SDL_Texture *texture, const SDL_Rect &rect);
+  Object(SDL_Texture *texture, const SDL_Rect &pos);
 
 public:
   void setTexture(SDL_Texture *texture);
   void setPos(const float x, const float y);
   void render(SDL_Renderer *renderer);
   virtual void update(const int dt_ms);
-  void updatePos(const float x, const float y);
   void setVelocity(const float vx, const float vy);
   void setVelocityX(const float vx);
   void setVelocityY(const float vy);

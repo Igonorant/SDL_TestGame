@@ -2,16 +2,10 @@
 #include <assert.h>
 #include <cmath>
 
-Object::Object() : Object(nullptr) {}
+Object::Object() : Object(nullptr, {0, 0}) {}
 
-Object::Object(SDL_Texture *texture) : Object(texture, 0, 0) {}
-
-Object::Object(SDL_Texture *texture, const float x, const float y)
-    : Object(texture, {int(x), int(y)}) {}
-
-Object::Object(SDL_Texture *texture, const SDL_Rect &rect)
-    : m_texture(texture) {
-  m_pos = rect;
+Object::Object(SDL_Texture *texture, const SDL_Rect &pos) : m_texture(texture) {
+  m_pos = pos;
   SDL_QueryTexture(m_texture, nullptr, nullptr, &m_pos.w, &m_pos.h);
 }
 
@@ -34,11 +28,6 @@ void Object::update(const int dt_ms) {
   m_pos.y += m_vy * dt_ms;
 }
 
-void Object::updatePos(const float x, const float y) {
-  m_pos.x += x;
-  m_pos.y += y;
-}
-
 void Object::setVelocity(const float vx, const float vy) {
   m_vx = vx;
   m_vy = vy;
@@ -48,12 +37,13 @@ void Object::setVelocityX(const float vx) { m_vx = vx; }
 
 void Object::setVelocityY(const float vy) { m_vy = vy; }
 
-Projectile::Projectile() : Object(nullptr) {}
+Projectile::Projectile() : Object() {}
 
 Projectile::Projectile(SDL_Texture *texture, const float x, const float y,
                        const float vx, const float vy, const int lifespan_ms,
                        const int damage)
-    : Object(texture, x, y), m_lifespan_ms(lifespan_ms), m_damage(damage) {
+    : Object(texture, {int(x), int(y)}), m_lifespan_ms(lifespan_ms),
+      m_damage(damage) {
   setVelocity(vx, vy);
 }
 
