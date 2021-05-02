@@ -3,6 +3,7 @@
 #include "../Engine/Components.h"
 #include "../Engine/Enums.h"
 #include "../Engine/TextureManager.h"
+#include "Definitions.h"
 #include <SDL2/SDL.h>
 #include <memory>
 #include <vector>
@@ -23,14 +24,11 @@ private:
   std::vector<KbdEvents> processInput();
   std::vector<KbdEvents> processKeydown(SDL_KeyboardEvent *event);
   std::vector<KbdEvents> processKeyup(SDL_KeyboardEvent *event);
-  void loadAssets();
 
 private:
   bool m_isInitialized = false;
   bool m_quitGame = false;
-  const char *m_title = "MyGame";
-  const int m_screenWidth = 800;
-  const int m_screenHeight = 600;
+  const char *m_title = Global::Game::Name.c_str();
   SDL_Renderer *m_renderer = nullptr;
   SDL_Window *m_window = nullptr;
   std::shared_ptr<TextureManager> m_textureMgr = nullptr;

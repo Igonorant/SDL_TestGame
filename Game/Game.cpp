@@ -13,8 +13,8 @@ Game::Game() {
   }
 
   m_window = SDL_CreateWindow(m_title, SDL_WINDOWPOS_UNDEFINED,
-                              SDL_WINDOWPOS_UNDEFINED, m_screenWidth,
-                              m_screenHeight, windowFlags);
+                              SDL_WINDOWPOS_UNDEFINED, Global::SDL::ScreenWidth,
+                              Global::SDL::ScreenHeight, windowFlags);
   if (!m_window) {
     std::cout << "Couldn't open window: " << SDL_GetError() << std::endl;
   }
@@ -26,11 +26,10 @@ Game::Game() {
     std::cout << "Couldn't create renderer: " << SDL_GetError() << std::endl;
   } else {
     m_textureMgr = std::make_shared<TextureManager>(m_renderer);
-    loadAssets();
     m_player.setPos(100, 250);
-    m_player.setTexture(m_textureMgr->GetTexture("Assets/character.png"));
+    m_player.setTexture(m_textureMgr->GetTexture(Global::Assets::Player));
     m_dummy.setPos(500, 250);
-    m_dummy.setTexture(m_textureMgr->GetTexture("Assets/dummy.png"));
+    m_dummy.setTexture(m_textureMgr->GetTexture(Global::Assets::Dummy));
   }
 
   m_isInitialized = bool(m_window) && bool(m_renderer);
@@ -54,7 +53,7 @@ void Game::StartGame() {
     // Spawn bullets
     if (m_player.shouldSpawnBullet()) {
       m_playerBullets.emplace_back(
-          m_textureMgr->GetTexture("Assets/player_bullet.png"),
+          m_textureMgr->GetTexture(Global::Assets::PlayerBullet),
           m_player.getPosX() + 15.0f, m_player.getPosY() + 20.0f, 0.5f /*vx*/,
           m_player.getVelocityY(), 1000 /*lifespan_ms*/, 10 /*damage*/);
       m_playerBullets.back().scale(0.025f);
@@ -176,12 +175,4 @@ std::vector<KbdEvents> Game::processKeyup(SDL_KeyboardEvent *event) {
     break;
   }
   return ret;
-}
-
-void Game::loadAssets() {
-  std::vector<std::string> assetsToLoad = {
-      "Assets/character.png", "Assets/dummy.png", "Assets/player_bullet.png"};
-  for (const auto &filePath : assetsToLoad) {
-    m_textureMgr->GetTexture(filePath);
-  }
 }

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../Game/Definitions.h"
 #include "Enums.h"
 #include <SDL2/SDL.h>
 #include <vector>
