@@ -1,10 +1,11 @@
 #include "Components.h"
+#include <algorithm>
 #include <assert.h>
 #include <cmath>
 
 Object::Object(const InitList &init)
     : m_texture(init.texture), m_pos(init.pos), m_vx(init.vx), m_vy(init.vy),
-      m_state(init.state) {
+      m_states(init.states) {
   if (init.queryTexture) {
     SDL_QueryTexture(m_texture, nullptr, nullptr, &m_pos.w, &m_pos.h);
   }
@@ -22,7 +23,7 @@ void Object::initialize(const InitList &init) {
   m_pos.w *= init.scale;
   m_vx = init.vx;
   m_vy = init.vy;
-  m_state = init.state;
+  m_states = init.states;
 }
 
 void Object::setTexture(SDL_Texture *texture) {
@@ -47,6 +48,35 @@ void Object::update(const Uint32 dt_ms) {
 void Object::setVelocity(const float vx, const float vy) {
   setVelocityX(vx);
   setVelocityY(vy);
+}
+
+void Object::addState(const ObjState state) {
+  if (std::find(m_states.cbegin(), m_states.cend(), state) == m_states.cend()) {
+    m_states.push_back(state);
+  }
+}
+
+void Object::removeState(const ObjState state) {
+  const auto it = std::find(m_states.cbegin(), m_states.cend(), state);
+  if (it != m_states.cend()) {
+    m_states.erase(it);
+  }
+}
+
+void Object::replaceState(const ObjState state, const ObjState toReplace,
+                          const bool addIfNotFound) {
+  const auto it = std::find(m_states.cbegin(), m_states.cend(), toReplace);
+  if (it != m_states.cend()) {
+    m_states.erase(it);
+    m_states.push_back(state);
+  } else if (addIfNotFound) {
+    m_states.push_back(state);
+  }
+}
+
+bool Object::hasState(const ObjState state) const {
+  return std::find(m_states.cbegin(), m_states.cend(), state) !=
+         m_states.cend();
 }
 
 Projectile::Projectile(const Object::InitList &init, const int lifespan_ms,
@@ -112,36 +142,32 @@ void Player::update(const Uint32 dt_ms, const std::vector<KbdEvents> &events) {
     switch (event) {
     case KbdEvents::Up_KeyDown:
       setVelocityY(-0.2f);
-      setState(ObjState::Moving);
+      replaceState(ObjState::Moving, ObjState::Idle);
       break;
     case KbdEvents::Down_KeyDown:
       setVelocityY(0.2f);
-      setState(ObjState::Moving);
+      replaceState(ObjState::Moving, ObjState::Idle);
       break;
     case KbdEvents::Left_KeyDown:
       setVelocityX(-0.2f);
-      setState(ObjState::Moving);
+      replaceState(ObjState::Moving, ObjState::Idle);
       break;
     case KbdEvents::Right_KeyDown:
       setVelocityX(0.2f);
-      setState(ObjState::Moving);
+      replaceState(ObjState::Moving, ObjState::Idle);
       break;
     case KbdEvents::Up_KeyUp:
     case KbdEvents::Down_KeyUp:
     case KbdEvents::Left_KeyUp:
     case KbdEvents::Right_KeyUp:
       setVelocity(0, 0);
-      setState(ObjState::Idle);
+      replaceState(ObjState::Idle, ObjState::Moving);
       break;
     case KbdEvents::LCtrl_KeyDown:
-      setState(ObjState::Firing);
+      addState(ObjState::Firing);
       break;
     case KbdEvents::LCtrl_KeyUp:
-      if (getVelocityX() == 0.0f && getVelocityY() == 0.0f) {
-        setState(ObjState::Idle);
-      } else {
-        setState(ObjState::Moving);
-      }
+      removeState(ObjState::Firing);
       break;
     default:
       break;
@@ -149,7 +175,7 @@ void Player::update(const Uint32 dt_ms, const std::vector<KbdEvents> &events) {
   }
 
   // Update bullet timer
-  if (getState() == ObjState::Firing) {
+  if (hasState(ObjState::Firing)) {
     m_bulletTimer_ms += dt_ms;
   } else {
     m_bulletTimer_ms = 0;
@@ -160,7 +186,7 @@ void Player::update(const Uint32 dt_ms, const std::vector<KbdEvents> &events) {
 }
 
 bool Player::shouldSpawnBullet() {
-  if (getState() == ObjState::Firing && m_bulletTimer_ms >= m_fireRate_ms) {
+  if (hasState(ObjState::Firing) && m_bulletTimer_ms >= m_fireRate_ms) {
     m_bulletTimer_ms %= m_fireRate_ms;
     return true;
   }

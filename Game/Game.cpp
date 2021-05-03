@@ -61,7 +61,7 @@ void Game::initialize() {
                        true /*queryTexture*/,
                        0.0f /*vx*/,
                        0.0f /*vy*/,
-                       ObjState::Idle},
+                       {ObjState::Idle}},
                       100 /*health*/, 5 /*fireRate*/);
   m_dummy.initialize({m_textureMgr->GetTexture(Global::Assets::Dummy),
                       1.0f /*scale*/,
@@ -69,7 +69,7 @@ void Game::initialize() {
                       true /*queryTexture*/,
                       0.0f /*vx*/,
                       0.0f /*vy*/,
-                      ObjState::Idle});
+                      {ObjState::Idle}});
 }
 
 std::vector<KbdEvents> Game::processInput() {
@@ -175,7 +175,7 @@ void Game::updateModel() {
                          true /*queryTexture*/,
                          0.5f /*vx*/,
                          m_player.getVelocityY() /*vy*/,
-                         ObjState::Moving},
+                         {ObjState::Moving}},
         1000 /*lifespan_ms*/, 10 /*damage*/);
   }
 

@@ -14,7 +14,7 @@ public:
     const bool queryTexture = false;
     const float vx = 0.0f;
     const float vy = 0.0f;
-    const ObjState state = ObjState::Idle;
+    const std::vector<ObjState> states = {ObjState::Idle};
   };
 
 public:
@@ -45,15 +45,20 @@ public:
   bool isColiding(const Object &obj);
 
   // State
-  void setState(const ObjState state) { m_state = state; }
-  ObjState getState() { return m_state; }
+  void setStates(const std::vector<ObjState> &states) { m_states = states; }
+  const std::vector<ObjState> &getStates() const { return m_states; }
+  void addState(const ObjState state);
+  void removeState(const ObjState state);
+  void replaceState(const ObjState state, const ObjState toReplace,
+                    const bool addIfNotFound = true);
+  bool hasState(const ObjState state) const;
 
 private:
   SDL_Texture *m_texture;
   SDL_Rect m_pos;
   float m_vx = 0;
   float m_vy = 0;
-  ObjState m_state = ObjState::Idle;
+  std::vector<ObjState> m_states = {ObjState::Idle};
 };
 
 class Player : public Object {
