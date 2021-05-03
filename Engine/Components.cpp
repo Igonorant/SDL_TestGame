@@ -158,10 +158,17 @@ void Player::update(const Uint32 dt_ms, const std::vector<KbdEvents> &events) {
       break;
     case KbdEvents::Up_KeyUp:
     case KbdEvents::Down_KeyUp:
+      setVelocityY(0.0f);
+      if (getVelocityX() == 0.0f) {
+        replaceState(ObjState::Idle, ObjState::Moving);
+      }
+      break;
     case KbdEvents::Left_KeyUp:
     case KbdEvents::Right_KeyUp:
-      setVelocity(0, 0);
-      replaceState(ObjState::Idle, ObjState::Moving);
+      setVelocityX(0.0f);
+      if (getVelocityY() == 0.0f) {
+        replaceState(ObjState::Idle, ObjState::Moving);
+      }
       break;
     case KbdEvents::LCtrl_KeyDown:
       addState(ObjState::Firing);
