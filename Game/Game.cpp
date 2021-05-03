@@ -26,6 +26,10 @@ Game::Game() {
     std::cout << "Couldn't create renderer: " << SDL_GetError() << std::endl;
   } else {
     m_textureMgr = std::make_shared<TextureManager>(m_renderer);
+
+    m_modelTimer.setInterval(Uint32(1000 / Global::Game::ModelRate));
+    m_frameTimer.setInterval(Uint32(1000 / Global::Game::FrameRate));
+
     m_player.setPos(100, 250);
     m_player.setTexture(m_textureMgr->GetTexture(Global::Assets::Player));
     m_dummy.setPos(500, 250);
@@ -42,13 +46,15 @@ Game::~Game() {
 
 void Game::StartGame() {
   m_quitGame |= !m_isInitialized;
-  int dt_ms = 16;
   while (!m_quitGame) {
+    // Get time since last loop
+    Uint32 dt = m_modelTimer.getTimeSinceLastCall();
+
     // Get events
     const auto &events = processInput();
 
     // Update player
-    m_player.update(dt_ms, events);
+    m_player.update(dt, events);
 
     // Spawn bullets
     if (m_player.shouldSpawnBullet()) {
@@ -61,7 +67,7 @@ void Game::StartGame() {
 
     // Update bullets
     for (auto &bullet : m_playerBullets) {
-      bullet.update(dt_ms);
+      bullet.update(dt);
       if (m_dummy.isColiding(bullet)) {
         bullet.hitted();
       }
@@ -75,21 +81,23 @@ void Game::StartGame() {
                                          }),
                           m_playerBullets.end());
 
-    // Render background
-    SDL_SetRenderDrawColor(m_renderer, 96, 128, 255, 255);
-    SDL_RenderClear(m_renderer);
+    if (m_frameTimer.triggered()) {
+      // Render background
+      SDL_SetRenderDrawColor(m_renderer, 96, 128, 255, 255);
+      SDL_RenderClear(m_renderer);
 
-    // Render objects
-    m_player.render(m_renderer);
-    m_dummy.render(m_renderer);
-    for (auto &bullet : m_playerBullets) {
-      bullet.render(m_renderer);
+      // Render objects
+      m_player.render(m_renderer);
+      m_dummy.render(m_renderer);
+      for (auto &bullet : m_playerBullets) {
+        bullet.render(m_renderer);
+      }
+
+      // Present rendered objects
+      SDL_RenderPresent(m_renderer);
     }
 
-    // Present rendered objects
-    SDL_RenderPresent(m_renderer);
-
-    SDL_Delay(dt_ms);
+    m_modelTimer.waitUntilNextTrigger();
   }
   return;
 }

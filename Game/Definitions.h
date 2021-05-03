@@ -6,7 +6,9 @@ namespace Global {
 
 namespace Game {
 const std::string Name = "MyGame";
-}
+const int FrameRate = 60;  // frames per second
+const int ModelRate = 200; // updates per second
+} // namespace Game
 
 namespace SDL {
 const int ScreenWidth = 800;

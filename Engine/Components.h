@@ -73,3 +73,20 @@ private:
   int m_damage = 0;
   bool m_endedLifespan = false;
 };
+
+class Timer {
+public:
+  Timer();
+  Timer(const Uint32 interval);
+
+public:
+  void setInterval(const Uint32 interval) { m_interval_ms = interval; }
+  bool triggered();
+  void waitUntilNextTrigger();
+  Uint32 getTimeSinceLastCall();
+
+private:
+  Uint32 m_interval_ms = 100;
+  Uint32 m_lastTick_ms = 0;
+  Uint32 m_lastCall_ms = 0;
+};

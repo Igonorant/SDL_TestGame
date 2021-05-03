@@ -88,19 +88,19 @@ void Player::update(const int dt_ms, const std::vector<KbdEvents> &events) {
   for (const auto event : events) {
     switch (event) {
     case KbdEvents::Up_KeyDown:
-      setVelocityY(-0.1f);
+      setVelocityY(-0.2f);
       setState(ObjState::Moving);
       break;
     case KbdEvents::Down_KeyDown:
-      setVelocityY(0.1f);
+      setVelocityY(0.2f);
       setState(ObjState::Moving);
       break;
     case KbdEvents::Left_KeyDown:
-      setVelocityX(-0.1f);
+      setVelocityX(-0.2f);
       setState(ObjState::Moving);
       break;
     case KbdEvents::Right_KeyDown:
-      setVelocityX(0.1f);
+      setVelocityX(0.2f);
       setState(ObjState::Moving);
       break;
     case KbdEvents::Up_KeyUp:
@@ -138,4 +138,34 @@ bool Player::shouldSpawnBullet() {
     return true;
   }
   return false;
+}
+
+Timer::Timer() { m_lastTick_ms = SDL_GetTicks(); }
+
+Timer::Timer(const Uint32 interval) : m_interval_ms(interval) {
+  m_lastTick_ms = SDL_GetTicks();
+}
+
+bool Timer::triggered() {
+  Uint32 currentTicks = SDL_GetTicks();
+  if (currentTicks - m_lastTick_ms > m_interval_ms) {
+    m_lastTick_ms = currentTicks;
+    return true;
+  }
+  return false;
+}
+
+void Timer::waitUntilNextTrigger() {
+  Uint32 currentTicks = SDL_GetTicks();
+  Uint32 remainingTicks =
+      std::min(m_interval_ms - (currentTicks - m_lastTick_ms), m_interval_ms);
+  SDL_Delay(remainingTicks);
+  m_lastTick_ms = SDL_GetTicks();
+}
+
+Uint32 Timer::getTimeSinceLastCall() {
+  Uint32 currTick = SDL_GetTicks();
+  Uint32 dt = currTick - m_lastCall_ms;
+  m_lastCall_ms = currTick;
+  return dt;
 }

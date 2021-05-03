@@ -37,4 +37,7 @@ private:
   std::vector<Projectile> m_playerBullets;
 
   Object m_dummy;
+
+  Timer m_modelTimer;
+  Timer m_frameTimer;
 };
