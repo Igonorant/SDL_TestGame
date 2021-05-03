@@ -55,10 +55,21 @@ void Game::initialize() {
   m_modelTimer.setInterval(Uint32(1000 / Global::Game::ModelRate));
   m_frameTimer.setInterval(Uint32(1000 / Global::Game::FrameRate));
 
-  m_player.setPos(100, 250);
-  m_player.setTexture(m_textureMgr->GetTexture(Global::Assets::Player));
-  m_dummy.setPos(500, 250);
-  m_dummy.setTexture(m_textureMgr->GetTexture(Global::Assets::Dummy));
+  m_player.initialize({m_textureMgr->GetTexture(Global::Assets::Player),
+                       1.0f /*scale*/,
+                       {100, 250} /*pos*/,
+                       true /*queryTexture*/,
+                       0.0f /*vx*/,
+                       0.0f /*vy*/,
+                       ObjState::Idle},
+                      100 /*health*/, 5 /*fireRate*/);
+  m_dummy.initialize({m_textureMgr->GetTexture(Global::Assets::Dummy),
+                      1.0f /*scale*/,
+                      {500, 250} /*pos*/,
+                      true /*queryTexture*/,
+                      0.0f /*vx*/,
+                      0.0f /*vy*/,
+                      ObjState::Idle});
 }
 
 std::vector<KbdEvents> Game::processInput() {
@@ -157,10 +168,15 @@ void Game::updateModel() {
   // Spawn bullets
   if (m_player.shouldSpawnBullet()) {
     m_playerBullets.emplace_back(
-        m_textureMgr->GetTexture(Global::Assets::PlayerBullet),
-        m_player.getPosX() + 15.0f, m_player.getPosY() + 20.0f, 0.5f /*vx*/,
-        m_player.getVelocityY(), 1000 /*lifespan_ms*/, 10 /*damage*/);
-    m_playerBullets.back().scale(0.025f);
+        Object::InitList{m_textureMgr->GetTexture(Global::Assets::PlayerBullet),
+                         0.025f /*scale*/,
+                         {int(m_player.getPosX()) + 15,
+                          int(m_player.getPosY()) + 20} /*pos*/,
+                         true /*queryTexture*/,
+                         0.5f /*vx*/,
+                         m_player.getVelocityY() /*vy*/,
+                         ObjState::Moving},
+        1000 /*lifespan_ms*/, 10 /*damage*/);
   }
 
   // Update bullets

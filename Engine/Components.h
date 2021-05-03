@@ -7,8 +7,20 @@
 
 class Object {
 public:
-  Object();
-  Object(SDL_Texture *texture, const SDL_Rect &pos);
+  struct InitList {
+    SDL_Texture *texture = nullptr;
+    const float scale = 1.0f;
+    const SDL_Rect &pos = {0, 0, 0, 0};
+    const bool queryTexture = false;
+    const float vx = 0.0f;
+    const float vy = 0.0f;
+    const ObjState state = ObjState::Idle;
+  };
+
+public:
+  Object() = default;
+  Object(const InitList &init);
+  void initialize(const InitList &init);
 
 public:
   // Movement and position
@@ -28,9 +40,11 @@ public:
   void render(SDL_Renderer *renderer);
 
   // Others
-  virtual void update(const int dt_ms);
+  virtual void update(const Uint32 dt_ms);
   void scale(const float factor);
   bool isColiding(const Object &obj);
+
+  // State
   void setState(const ObjState state) { m_state = state; }
   ObjState getState() { return m_state; }
 
@@ -44,27 +58,31 @@ private:
 
 class Player : public Object {
 public:
-  Player();
-  Player(SDL_Texture *texture, const SDL_Rect &rect);
+  Player() = default;
+  Player(const Object::InitList &init, const int health, const int fireRate);
+  void initialize(const Object::InitList &init, const int health,
+                  const int fireRate);
 
 public:
-  void update(const int dt_ms, const std::vector<KbdEvents> &events);
+  void update(const Uint32 dt_ms, const std::vector<KbdEvents> &events);
   bool shouldSpawnBullet();
 
 private:
   int m_health = 100;
-  int m_bulletTimer_ms = 0;
-  int m_fireRate_ms = 100; // fire every X ms
+  Uint32 m_bulletTimer_ms = 0;
+  Uint32 m_fireRate_ms = 100; // fire every X ms
 };
 
 class Projectile : public Object {
 public:
-  Projectile();
-  Projectile(SDL_Texture *texture, const float x, const float y, const float vx,
-             const float vy, const int lifespan_ms, const int damage);
+  Projectile() = default;
+  Projectile(const Object::InitList &init, const int lifespan_ms,
+             const int damage);
+  void initialize(const Object::InitList &init, const int lifespan_ms,
+                  const int damage);
 
 public:
-  void update(const int dt_ms);
+  void update(const Uint32 dt_ms);
   bool endedLifespan() const { return m_endedLifespan; }
   void hitted();
 

@@ -2,11 +2,27 @@
 #include <assert.h>
 #include <cmath>
 
-Object::Object() : Object(nullptr, {0, 0}) {}
+Object::Object(const InitList &init)
+    : m_texture(init.texture), m_pos(init.pos), m_vx(init.vx), m_vy(init.vy),
+      m_state(init.state) {
+  if (init.queryTexture) {
+    SDL_QueryTexture(m_texture, nullptr, nullptr, &m_pos.w, &m_pos.h);
+  }
+  m_pos.h *= init.scale;
+  m_pos.w *= init.scale;
+}
 
-Object::Object(SDL_Texture *texture, const SDL_Rect &pos) : m_texture(texture) {
-  m_pos = pos;
-  SDL_QueryTexture(m_texture, nullptr, nullptr, &m_pos.w, &m_pos.h);
+void Object::initialize(const InitList &init) {
+  m_texture = init.texture;
+  m_pos = init.pos;
+  if (init.queryTexture) {
+    SDL_QueryTexture(m_texture, nullptr, nullptr, &m_pos.w, &m_pos.h);
+  }
+  m_pos.h *= init.scale;
+  m_pos.w *= init.scale;
+  m_vx = init.vx;
+  m_vy = init.vy;
+  m_state = init.state;
 }
 
 void Object::setTexture(SDL_Texture *texture) {
@@ -23,7 +39,7 @@ void Object::render(SDL_Renderer *renderer) {
   SDL_RenderCopy(renderer, m_texture, nullptr, &m_pos);
 }
 
-void Object::update(const int dt_ms) {
+void Object::update(const Uint32 dt_ms) {
   m_pos.x += m_vx * dt_ms;
   m_pos.y += m_vy * dt_ms;
 }
@@ -33,17 +49,18 @@ void Object::setVelocity(const float vx, const float vy) {
   setVelocityY(vy);
 }
 
-Projectile::Projectile() : Object() {}
-
-Projectile::Projectile(SDL_Texture *texture, const float x, const float y,
-                       const float vx, const float vy, const int lifespan_ms,
+Projectile::Projectile(const Object::InitList &init, const int lifespan_ms,
                        const int damage)
-    : Object(texture, {int(x), int(y)}), m_lifespan_ms(lifespan_ms),
-      m_damage(damage) {
-  setVelocity(vx, vy);
+    : Object(init), m_lifespan_ms(lifespan_ms), m_damage(damage) {}
+
+void Projectile::initialize(const Object::InitList &init, const int lifespan_ms,
+                            const int damage) {
+  Object::initialize(init);
+  m_lifespan_ms = lifespan_ms;
+  m_damage = damage;
 }
 
-void Projectile::update(const int dt_ms) {
+void Projectile::update(const Uint32 dt_ms) {
   Object::update(dt_ms);
   m_lifespan_ms -= dt_ms;
   m_endedLifespan = m_lifespan_ms <= 0;
@@ -78,12 +95,18 @@ bool Object::isColiding(const Object &obj) {
          currBottomRight.y >= objBottomRight.y;
 }
 
-Player::Player() : Object() {}
+Player::Player(const Object::InitList &init, const int health,
+               const int fireRate)
+    : Object(init), m_health(health), m_fireRate_ms(1000 / fireRate) {}
 
-Player::Player(SDL_Texture *texture, const SDL_Rect &rect)
-    : Object(texture, rect) {}
+void Player::initialize(const Object::InitList &init, const int health,
+                        const int fireRate) {
+  Object::initialize(init);
+  m_health = health;
+  m_fireRate_ms = 1000 / fireRate;
+}
 
-void Player::update(const int dt_ms, const std::vector<KbdEvents> &events) {
+void Player::update(const Uint32 dt_ms, const std::vector<KbdEvents> &events) {
   // Handle events
   for (const auto event : events) {
     switch (event) {
@@ -114,7 +137,11 @@ void Player::update(const int dt_ms, const std::vector<KbdEvents> &events) {
       setState(ObjState::Firing);
       break;
     case KbdEvents::LCtrl_KeyUp:
-      setState(ObjState::Idle);
+      if (getVelocityX() == 0.0f && getVelocityY() == 0.0f) {
+        setState(ObjState::Idle);
+      } else {
+        setState(ObjState::Moving);
+      }
       break;
     default:
       break;
