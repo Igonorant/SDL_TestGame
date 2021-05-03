@@ -22,18 +22,10 @@ Game::Game() {
   SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
 
   m_renderer = SDL_CreateRenderer(m_window, -1, rendererFlags);
-  if (!m_renderer) {
-    std::cout << "Couldn't create renderer: " << SDL_GetError() << std::endl;
+  if (m_renderer) {
+    initialize();
   } else {
-    m_textureMgr = std::make_shared<TextureManager>(m_renderer);
-
-    m_modelTimer.setInterval(Uint32(1000 / Global::Game::ModelRate));
-    m_frameTimer.setInterval(Uint32(1000 / Global::Game::FrameRate));
-
-    m_player.setPos(100, 250);
-    m_player.setTexture(m_textureMgr->GetTexture(Global::Assets::Player));
-    m_dummy.setPos(500, 250);
-    m_dummy.setTexture(m_textureMgr->GetTexture(Global::Assets::Dummy));
+    std::cout << "Couldn't create renderer: " << SDL_GetError() << std::endl;
   }
 
   m_isInitialized = bool(m_window) && bool(m_renderer);
@@ -47,59 +39,26 @@ Game::~Game() {
 void Game::StartGame() {
   m_quitGame |= !m_isInitialized;
   while (!m_quitGame) {
-    // Get time since last loop
-    Uint32 dt = m_modelTimer.getTimeSinceLastCall();
-
-    // Get events
-    const auto &events = processInput();
-
-    // Update player
-    m_player.update(dt, events);
-
-    // Spawn bullets
-    if (m_player.shouldSpawnBullet()) {
-      m_playerBullets.emplace_back(
-          m_textureMgr->GetTexture(Global::Assets::PlayerBullet),
-          m_player.getPosX() + 15.0f, m_player.getPosY() + 20.0f, 0.5f /*vx*/,
-          m_player.getVelocityY(), 1000 /*lifespan_ms*/, 10 /*damage*/);
-      m_playerBullets.back().scale(0.025f);
-    }
-
-    // Update bullets
-    for (auto &bullet : m_playerBullets) {
-      bullet.update(dt);
-      if (m_dummy.isColiding(bullet)) {
-        bullet.hitted();
-      }
-    }
-
-    // Remove dying bullets
-    m_playerBullets.erase(std::remove_if(m_playerBullets.begin(),
-                                         m_playerBullets.end(),
-                                         [](const Projectile &bullet) {
-                                           return bullet.endedLifespan();
-                                         }),
-                          m_playerBullets.end());
-
+    updateModel();
     if (m_frameTimer.triggered()) {
-      // Render background
-      SDL_SetRenderDrawColor(m_renderer, 96, 128, 255, 255);
-      SDL_RenderClear(m_renderer);
-
-      // Render objects
-      m_player.render(m_renderer);
-      m_dummy.render(m_renderer);
-      for (auto &bullet : m_playerBullets) {
-        bullet.render(m_renderer);
-      }
-
-      // Present rendered objects
-      SDL_RenderPresent(m_renderer);
+      composeFrame();
     }
 
     m_modelTimer.waitUntilNextTrigger();
   }
   return;
+}
+
+void Game::initialize() {
+  m_textureMgr = std::make_shared<TextureManager>(m_renderer);
+
+  m_modelTimer.setInterval(Uint32(1000 / Global::Game::ModelRate));
+  m_frameTimer.setInterval(Uint32(1000 / Global::Game::FrameRate));
+
+  m_player.setPos(100, 250);
+  m_player.setTexture(m_textureMgr->GetTexture(Global::Assets::Player));
+  m_dummy.setPos(500, 250);
+  m_dummy.setTexture(m_textureMgr->GetTexture(Global::Assets::Dummy));
 }
 
 std::vector<KbdEvents> Game::processInput() {
@@ -183,4 +142,56 @@ std::vector<KbdEvents> Game::processKeyup(SDL_KeyboardEvent *event) {
     break;
   }
   return ret;
+}
+
+void Game::updateModel() {
+  // Get time since last loop
+  const Uint32 dt = m_modelTimer.getTimeSinceLastCall();
+
+  // Get events
+  const auto &events = processInput();
+
+  // Update player
+  m_player.update(dt, events);
+
+  // Spawn bullets
+  if (m_player.shouldSpawnBullet()) {
+    m_playerBullets.emplace_back(
+        m_textureMgr->GetTexture(Global::Assets::PlayerBullet),
+        m_player.getPosX() + 15.0f, m_player.getPosY() + 20.0f, 0.5f /*vx*/,
+        m_player.getVelocityY(), 1000 /*lifespan_ms*/, 10 /*damage*/);
+    m_playerBullets.back().scale(0.025f);
+  }
+
+  // Update bullets
+  for (auto &bullet : m_playerBullets) {
+    bullet.update(dt);
+    if (m_dummy.isColiding(bullet)) {
+      bullet.hitted();
+    }
+  }
+
+  // Remove dying bullets
+  m_playerBullets.erase(std::remove_if(m_playerBullets.begin(),
+                                       m_playerBullets.end(),
+                                       [](const Projectile &bullet) {
+                                         return bullet.endedLifespan();
+                                       }),
+                        m_playerBullets.end());
+}
+
+void Game::composeFrame() {
+  // Render background
+  SDL_SetRenderDrawColor(m_renderer, 96, 128, 255, 255);
+  SDL_RenderClear(m_renderer);
+
+  // Render objects
+  m_player.render(m_renderer);
+  m_dummy.render(m_renderer);
+  for (auto &bullet : m_playerBullets) {
+    bullet.render(m_renderer);
+  }
+
+  // Present rendered objects
+  SDL_RenderPresent(m_renderer);
 }

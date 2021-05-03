@@ -21,11 +21,17 @@ public:
   void StartGame();
 
 private:
+  void initialize();
+
   std::vector<KbdEvents> processInput();
   std::vector<KbdEvents> processKeydown(SDL_KeyboardEvent *event);
   std::vector<KbdEvents> processKeyup(SDL_KeyboardEvent *event);
 
+  void updateModel();
+  void composeFrame();
+
 private:
+  // General
   bool m_isInitialized = false;
   bool m_quitGame = false;
   const char *m_title = Global::Game::Name.c_str();
@@ -33,11 +39,14 @@ private:
   SDL_Window *m_window = nullptr;
   std::shared_ptr<TextureManager> m_textureMgr = nullptr;
 
+  // Player objects
   Player m_player;
   std::vector<Projectile> m_playerBullets;
 
-  Object m_dummy;
-
+  // Timers
   Timer m_modelTimer;
   Timer m_frameTimer;
+
+  // Testing
+  Object m_dummy;
 };
