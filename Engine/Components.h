@@ -3,6 +3,7 @@
 #include "../Game/Definitions.h"
 #include "Enums.h"
 #include <SDL2/SDL.h>
+#include <set>
 #include <vector>
 
 class Object {
@@ -112,4 +113,28 @@ private:
   Uint32 m_interval_ms = 100;
   Uint32 m_lastTick_ms = 0;
   Uint32 m_lastCall_ms = 0;
+};
+
+class Animation {
+  struct Frame {
+    SDL_Texture *m_texture;
+    SDL_Rect m_frame;
+    Uint32 m_time;
+  };
+
+public:
+  Animation() = default;
+  Animation(const std::vector<Animation::Frame> &animation);
+
+public:
+  void addFrame(const Frame &frame);
+  void addFrames(const std::vector<Animation::Frame> &frames);
+  void render(SDL_Renderer *renderer, const SDL_Rect &dst);
+  void update(const Uint32 dt);
+
+private:
+  std::vector<Animation::Frame> m_frames;
+  Uint32 m_currTime_ms = 0;
+  unsigned int m_currFrame = 0;
+  unsigned int m_nFrames = 0;
 };

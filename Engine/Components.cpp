@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <assert.h>
 #include <cmath>
+#include <numeric>
 
 Object::Object(const InitList &init)
     : m_texture(init.texture), m_pos(init.pos), m_vx(init.vx), m_vy(init.vy),
@@ -228,4 +229,34 @@ Uint32 Timer::getTimeSinceLastCall() {
   Uint32 dt = currTick - m_lastCall_ms;
   m_lastCall_ms = currTick;
   return dt;
+}
+
+Animation::Animation(const std::vector<Animation::Frame> &animation)
+    : m_frames(animation), m_nFrames(animation.size()) {}
+
+void Animation::addFrame(const Frame &frame) {
+  m_frames.push_back(frame);
+  ++m_nFrames;
+}
+
+void Animation::addFrames(const std::vector<Animation::Frame> &frames) {
+  for (const auto &frame : frames) {
+    addFrame(frame);
+  }
+}
+
+void Animation::render(SDL_Renderer *renderer, const SDL_Rect &dst) {
+  SDL_RenderCopy(renderer, m_frames[m_currFrame].m_texture,
+                 &(m_frames[m_currFrame].m_frame), &dst);
+}
+
+void Animation::update(const Uint32 dt) {
+  m_currTime_ms += dt;
+  if (m_currTime_ms >= m_frames[m_currFrame].m_time) {
+    m_currTime_ms %= m_frames[m_currFrame].m_time;
+    ++m_currFrame;
+    if (m_currFrame == m_nFrames) {
+      m_currFrame = 0;
+    }
+  }
 }

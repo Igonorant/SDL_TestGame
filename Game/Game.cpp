@@ -63,6 +63,8 @@ void Game::initialize() {
                        0.0f /*vy*/,
                        {ObjState::Idle}},
                       100 /*health*/, 5 /*fireRate*/);
+
+  // Test stuff
   m_dummy.initialize({m_textureMgr->GetTexture(Global::Assets::Dummy),
                       1.0f /*scale*/,
                       {500, 250} /*pos*/,
@@ -70,6 +72,47 @@ void Game::initialize() {
                       0.0f /*vx*/,
                       0.0f /*vy*/,
                       {ObjState::Idle}});
+
+  m_testAnimation.addFrame(
+      {m_textureMgr->GetTexture(Global::Assets::PlayerIdle01),
+       {30, 30, 400, 500} /*frame*/,
+       100 /*time*/});
+  m_testAnimation.addFrame(
+      {m_textureMgr->GetTexture(Global::Assets::PlayerIdle02),
+       {30, 30, 400, 500} /*frame*/,
+       100 /*time*/});
+  m_testAnimation.addFrame(
+      {m_textureMgr->GetTexture(Global::Assets::PlayerIdle03),
+       {30, 30, 400, 500} /*frame*/,
+       100 /*time*/});
+  m_testAnimation.addFrame(
+      {m_textureMgr->GetTexture(Global::Assets::PlayerIdle04),
+       {30, 30, 400, 500} /*frame*/,
+       100 /*time*/});
+  m_testAnimation.addFrame(
+      {m_textureMgr->GetTexture(Global::Assets::PlayerIdle05),
+       {30, 30, 400, 500} /*frame*/,
+       100 /*time*/});
+  m_testAnimation.addFrame(
+      {m_textureMgr->GetTexture(Global::Assets::PlayerIdle06),
+       {30, 30, 400, 500} /*frame*/,
+       100 /*time*/});
+  m_testAnimation.addFrame(
+      {m_textureMgr->GetTexture(Global::Assets::PlayerIdle07),
+       {30, 30, 400, 500} /*frame*/,
+       100 /*time*/});
+  m_testAnimation.addFrame(
+      {m_textureMgr->GetTexture(Global::Assets::PlayerIdle08),
+       {30, 30, 400, 500} /*frame*/,
+       100 /*time*/});
+  m_testAnimation.addFrame(
+      {m_textureMgr->GetTexture(Global::Assets::PlayerIdle09),
+       {30, 30, 400, 500} /*frame*/,
+       100 /*time*/});
+  m_testAnimation.addFrame(
+      {m_textureMgr->GetTexture(Global::Assets::PlayerIdle10),
+       {30, 30, 400, 500} /*frame*/,
+       100 /*time*/});
 }
 
 std::vector<KbdEvents> Game::processInput() {
@@ -194,6 +237,9 @@ void Game::updateModel() {
                                          return bullet.endedLifespan();
                                        }),
                         m_playerBullets.end());
+
+  // Test stuff
+  m_testAnimation.update(dt);
 }
 
 void Game::composeFrame() {
@@ -207,6 +253,9 @@ void Game::composeFrame() {
   for (auto &bullet : m_playerBullets) {
     bullet.render(m_renderer);
   }
+
+  // Test stuff
+  m_testAnimation.render(m_renderer, {100, 100, 120, 150});
 
   // Present rendered objects
   SDL_RenderPresent(m_renderer);

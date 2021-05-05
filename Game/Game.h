@@ -49,4 +49,5 @@ private:
 
   // Testing
   Object m_dummy;
+  Animation m_testAnimation;
 };
