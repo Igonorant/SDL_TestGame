@@ -1,4 +1,5 @@
 #include "Game.h"
+#include "Definitions.h"
 #include <algorithm>
 #include <iostream>
 #include <vector>
@@ -12,9 +13,10 @@ Game::Game() {
     std::cout << "Couldn't initialize SDL: " << SDL_GetError() << std::endl;
   }
 
-  m_window = SDL_CreateWindow(m_title, SDL_WINDOWPOS_UNDEFINED,
-                              SDL_WINDOWPOS_UNDEFINED, Global::SDL::ScreenWidth,
-                              Global::SDL::ScreenHeight, windowFlags);
+  m_window =
+      SDL_CreateWindow(Global::Game::Name.c_str(), SDL_WINDOWPOS_UNDEFINED,
+                       SDL_WINDOWPOS_UNDEFINED, Global::SDL::ScreenWidth,
+                       Global::SDL::ScreenHeight, windowFlags);
   if (!m_window) {
     std::cout << "Couldn't open window: " << SDL_GetError() << std::endl;
   }
@@ -55,14 +57,56 @@ void Game::initialize() {
   m_modelTimer.setInterval(Uint32(1000 / Global::Game::ModelRate));
   m_frameTimer.setInterval(Uint32(1000 / Global::Game::FrameRate));
 
-  m_player.initialize({m_textureMgr->GetTexture(Global::Assets::Player),
+  m_player.initialize({nullptr,
                        1.0f /*scale*/,
-                       {100, 250} /*pos*/,
-                       true /*queryTexture*/,
+                       {100, 250, 120, 180} /*pos*/,
+                       false /*queryTexture*/,
                        0.0f /*vx*/,
                        0.0f /*vy*/,
                        {ObjState::Idle}},
                       100 /*health*/, 5 /*fireRate*/);
+
+  // Load animations for player
+  Animation idle;
+  for (unsigned int i = 0; i < 10; ++i) {
+    idle.addFrame({
+        m_textureMgr->GetTexture(Global::Assets::getPlayerIdle(i)),
+        {20, 20, 500, 500},
+        100 /*time*/
+    });
+  }
+  m_player.addAnimation(Player::AnimationState::Idle, idle);
+
+  Animation moving;
+  for (unsigned int i = 0; i < 8; ++i) {
+    moving.addFrame({
+        m_textureMgr->GetTexture(Global::Assets::getPlayerMoving(i)),
+        {20, 20, 500, 500},
+        100 /*time*/
+    });
+  }
+  m_player.addAnimation(Player::AnimationState::Moving, moving);
+
+  Animation firingAndMoving;
+  for (unsigned int i = 0; i < 9; ++i) {
+    firingAndMoving.addFrame({
+        m_textureMgr->GetTexture(Global::Assets::getPlayerFiringAndMoving(i)),
+        {20, 20, 500, 500},
+        100 /*time*/
+    });
+  }
+  m_player.addAnimation(Player::AnimationState::FiringAndMoving,
+                        firingAndMoving);
+
+  Animation firing;
+  for (unsigned int i = 0; i < 4; ++i) {
+    firing.addFrame({
+        m_textureMgr->GetTexture(Global::Assets::getPlayerFiring(i)),
+        {20, 20, 500, 500},
+        100 /*time*/
+    });
+  }
+  m_player.addAnimation(Player::AnimationState::Firing, firing);
 
   // Test stuff
   m_dummy.initialize({m_textureMgr->GetTexture(Global::Assets::Dummy),
@@ -72,47 +116,6 @@ void Game::initialize() {
                       0.0f /*vx*/,
                       0.0f /*vy*/,
                       {ObjState::Idle}});
-
-  m_testAnimation.addFrame(
-      {m_textureMgr->GetTexture(Global::Assets::PlayerIdle01),
-       {30, 30, 400, 500} /*frame*/,
-       100 /*time*/});
-  m_testAnimation.addFrame(
-      {m_textureMgr->GetTexture(Global::Assets::PlayerIdle02),
-       {30, 30, 400, 500} /*frame*/,
-       100 /*time*/});
-  m_testAnimation.addFrame(
-      {m_textureMgr->GetTexture(Global::Assets::PlayerIdle03),
-       {30, 30, 400, 500} /*frame*/,
-       100 /*time*/});
-  m_testAnimation.addFrame(
-      {m_textureMgr->GetTexture(Global::Assets::PlayerIdle04),
-       {30, 30, 400, 500} /*frame*/,
-       100 /*time*/});
-  m_testAnimation.addFrame(
-      {m_textureMgr->GetTexture(Global::Assets::PlayerIdle05),
-       {30, 30, 400, 500} /*frame*/,
-       100 /*time*/});
-  m_testAnimation.addFrame(
-      {m_textureMgr->GetTexture(Global::Assets::PlayerIdle06),
-       {30, 30, 400, 500} /*frame*/,
-       100 /*time*/});
-  m_testAnimation.addFrame(
-      {m_textureMgr->GetTexture(Global::Assets::PlayerIdle07),
-       {30, 30, 400, 500} /*frame*/,
-       100 /*time*/});
-  m_testAnimation.addFrame(
-      {m_textureMgr->GetTexture(Global::Assets::PlayerIdle08),
-       {30, 30, 400, 500} /*frame*/,
-       100 /*time*/});
-  m_testAnimation.addFrame(
-      {m_textureMgr->GetTexture(Global::Assets::PlayerIdle09),
-       {30, 30, 400, 500} /*frame*/,
-       100 /*time*/});
-  m_testAnimation.addFrame(
-      {m_textureMgr->GetTexture(Global::Assets::PlayerIdle10),
-       {30, 30, 400, 500} /*frame*/,
-       100 /*time*/});
 }
 
 std::vector<KbdEvents> Game::processInput() {

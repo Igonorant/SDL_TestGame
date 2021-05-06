@@ -189,6 +189,21 @@ void Player::update(const Uint32 dt_ms, const std::vector<KbdEvents> &events) {
     m_bulletTimer_ms = 0;
   }
 
+  // Update animations
+  const auto previousAnimState = m_animationState;
+  if (hasState(ObjState::Idle)) {
+    m_animationState = hasState(ObjState::Firing) ? AnimationState::Firing
+                                                  : AnimationState::Idle;
+  } else if (hasState(ObjState::Moving)) {
+    m_animationState = hasState(ObjState::Firing)
+                           ? AnimationState::FiringAndMoving
+                           : AnimationState::Moving;
+  }
+  if (previousAnimState != m_animationState) {
+    m_animations[m_animationState].reset();
+  }
+  m_animations[m_animationState].update(dt_ms);
+
   // Basic object update
   Object::update(dt_ms);
 }
@@ -199,6 +214,16 @@ bool Player::shouldSpawnBullet() {
     return true;
   }
   return false;
+}
+
+void Player::addAnimation(const Player::AnimationState state,
+                          const Animation &animation) {
+  m_animations.insert(std::make_pair(state, animation));
+}
+
+void Player::render(SDL_Renderer *renderer) {
+  m_animations[m_animationState].render(
+      renderer, {int(getPosX()), int(getPosY()), getWidth(), getHeight()});
 }
 
 Timer::Timer() { m_lastTick_ms = SDL_GetTicks(); }
@@ -246,12 +271,18 @@ void Animation::addFrames(const std::vector<Animation::Frame> &frames) {
 }
 
 void Animation::render(SDL_Renderer *renderer, const SDL_Rect &dst) {
+  if (m_frames.empty()) {
+    return;
+  }
   SDL_RenderCopy(renderer, m_frames[m_currFrame].m_texture,
                  &(m_frames[m_currFrame].m_frame), &dst);
 }
 
 void Animation::update(const Uint32 dt) {
   m_currTime_ms += dt;
+  if (m_frames.empty()) {
+    return;
+  }
   if (m_currTime_ms >= m_frames[m_currFrame].m_time) {
     m_currTime_ms %= m_frames[m_currFrame].m_time;
     ++m_currFrame;
@@ -259,4 +290,9 @@ void Animation::update(const Uint32 dt) {
       m_currFrame = 0;
     }
   }
+}
+
+void Animation::reset() {
+  m_currTime_ms = 0;
+  m_currFrame = 0;
 }

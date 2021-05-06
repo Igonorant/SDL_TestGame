@@ -3,7 +3,6 @@
 #include "../Engine/Components.h"
 #include "../Engine/Enums.h"
 #include "../Engine/TextureManager.h"
-#include "Definitions.h"
 #include <SDL2/SDL.h>
 #include <memory>
 #include <vector>
@@ -34,7 +33,6 @@ private:
   // General
   bool m_isInitialized = false;
   bool m_quitGame = false;
-  const char *m_title = Global::Game::Name.c_str();
   SDL_Renderer *m_renderer = nullptr;
   SDL_Window *m_window = nullptr;
   std::shared_ptr<TextureManager> m_textureMgr = nullptr;

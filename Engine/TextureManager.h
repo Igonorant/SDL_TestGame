@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../Game/Definitions.h"
 #include <SDL2/SDL.h>
 #include <string>
 #include <unordered_map>

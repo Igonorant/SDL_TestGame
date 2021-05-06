@@ -1,10 +1,35 @@
 #pragma once
 
-#include "../Game/Definitions.h"
 #include "Enums.h"
 #include <SDL2/SDL.h>
 #include <set>
+#include <unordered_map>
 #include <vector>
+
+class Animation {
+  struct Frame {
+    SDL_Texture *m_texture;
+    SDL_Rect m_frame;
+    Uint32 m_time;
+  };
+
+public:
+  Animation() = default;
+  Animation(const std::vector<Animation::Frame> &animation);
+
+public:
+  void addFrame(const Frame &frame);
+  void addFrames(const std::vector<Animation::Frame> &frames);
+  void render(SDL_Renderer *renderer, const SDL_Rect &dst);
+  void update(const Uint32 dt);
+  void reset();
+
+private:
+  std::vector<Animation::Frame> m_frames;
+  Uint32 m_currTime_ms = 0;
+  unsigned int m_currFrame = 0;
+  unsigned int m_nFrames = 0;
+};
 
 class Object {
 public:
@@ -29,6 +54,7 @@ public:
   void setVelocity(const float vx, const float vy);
   void setVelocityX(const float vx) { m_vx = vx; }
   void setVelocityY(const float vy) { m_vy = vy; }
+  SDL_Rect getPos() const { return m_pos; }
   float getPosX() const { return m_pos.x; }
   float getPosY() const { return m_pos.y; }
   int getWidth() const { return m_pos.w; }
@@ -38,7 +64,7 @@ public:
 
   // Render related
   void setTexture(SDL_Texture *texture);
-  void render(SDL_Renderer *renderer);
+  virtual void render(SDL_Renderer *renderer);
 
   // Others
   virtual void update(const Uint32 dt_ms);
@@ -64,6 +90,9 @@ private:
 
 class Player : public Object {
 public:
+  enum class AnimationState { Idle, Firing, Moving, FiringAndMoving };
+
+public:
   Player() = default;
   Player(const Object::InitList &init, const int health, const int fireRate);
   void initialize(const Object::InitList &init, const int health,
@@ -72,11 +101,16 @@ public:
 public:
   void update(const Uint32 dt_ms, const std::vector<KbdEvents> &events);
   bool shouldSpawnBullet();
+  void addAnimation(const Player::AnimationState state,
+                    const Animation &animation);
+  void render(SDL_Renderer *renderer) override;
 
 private:
   int m_health = 100;
   Uint32 m_bulletTimer_ms = 0;
   Uint32 m_fireRate_ms = 100; // fire every X ms
+  AnimationState m_animationState = AnimationState::Idle;
+  std::unordered_map<AnimationState, Animation> m_animations;
 };
 
 class Projectile : public Object {
@@ -113,28 +147,4 @@ private:
   Uint32 m_interval_ms = 100;
   Uint32 m_lastTick_ms = 0;
   Uint32 m_lastCall_ms = 0;
-};
-
-class Animation {
-  struct Frame {
-    SDL_Texture *m_texture;
-    SDL_Rect m_frame;
-    Uint32 m_time;
-  };
-
-public:
-  Animation() = default;
-  Animation(const std::vector<Animation::Frame> &animation);
-
-public:
-  void addFrame(const Frame &frame);
-  void addFrames(const std::vector<Animation::Frame> &frames);
-  void render(SDL_Renderer *renderer, const SDL_Rect &dst);
-  void update(const Uint32 dt);
-
-private:
-  std::vector<Animation::Frame> m_frames;
-  Uint32 m_currTime_ms = 0;
-  unsigned int m_currFrame = 0;
-  unsigned int m_nFrames = 0;
 };
