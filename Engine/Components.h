@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Enums.h"
+#include "Components_forward.h"
 #include <SDL2/SDL.h>
 #include <set>
 #include <unordered_map>

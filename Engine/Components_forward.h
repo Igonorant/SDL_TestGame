@@ -14,3 +14,13 @@ enum class KbdEvents {
 };
 
 enum class ObjState { Firing, Moving, Idle };
+
+class Animation;
+
+class Object;
+
+class Player;
+
+class Projectile;
+
+class Time;

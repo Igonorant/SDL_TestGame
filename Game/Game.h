@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../Engine/Components.h"
-#include "../Engine/Enums.h"
+#include "../Engine/Components_forward.h"
 #include "../Engine/TextureManager.h"
 #include <SDL2/SDL.h>
 #include <memory>
