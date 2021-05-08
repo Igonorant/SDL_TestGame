@@ -1,4 +1,4 @@
-OBJS = Main.cpp Engine\TextureManager.cpp Engine\Components.cpp Game\Game.cpp
+OBJS = Main.cpp Engine\TextureManager.cpp Engine\Components.cpp Game\Game.cpp Game\Initialize.cpp
 
 OBJ_NAME = testGame
 
