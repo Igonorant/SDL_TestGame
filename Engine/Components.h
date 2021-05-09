@@ -46,7 +46,7 @@ public:
   const Frame &getFrame() const { return m_frame; }
   const Uint32 &getTicks() const { return m_ticks; }
 
-public:
+private:
   Frame m_frame;
   Uint32 m_ticks;
 };
@@ -72,101 +72,125 @@ private:
 
 class Object {
 public:
-  struct InitList {
-    SDL_Texture *texture = nullptr;
-    const float scale = 1.0f;
-    const SDL_Rect &pos = {0, 0, 0, 0};
-    const bool queryTexture = false;
-    const float vx = 0.0f;
-    const float vy = 0.0f;
-    const std::vector<ObjState> states = {ObjState::Idle};
-  };
-
-public:
   Object() = default;
-  Object(const InitList &init);
-  void initialize(const InitList &init);
+  Object(const Animation &animation, const Rectf &destination,
+         const float scale = 1.0f, const ObjState state = ObjState::Idle);
 
 public:
-  // Movement and position
-  void setPos(const float x, const float y);
-  void setVelocity(const float vx, const float vy);
+  virtual void update(const Uint32 &dt);
+  virtual void render(SDL_Renderer *renderer);
+  void scale(const float factor);
+  bool isColiding(const Object &obj);
+  void updatePosX(const float dx) { m_dst.x += dx; }
+  void updatePosY(const float dy) { m_dst.y += dy; }
+
+  // Setters
+  void setState(const ObjState state) { m_state = state; }
+  void setPos(const float x, const float y) {
+    m_dst.x = x;
+    m_dst.y = y;
+  }
+  void setPosX(const float x) { m_dst.x = x; }
+  void setPosY(const float y) { m_dst.y = y; }
+  void setDestination(const Rectf &dst) { m_dst = dst; }
+  void setAnimation(const Animation &animation) { m_animation = animation; }
+
+  // Getters
+  ObjState getState() const { return m_state; }
+  float getPosX() const { return m_dst.x; }
+  float getPosY() const { return m_dst.y; }
+  float getWidth() const { return m_dst.w; }
+  float getHeight() const { return m_dst.h; }
+  float getOppositeX() const { return m_dst.x + m_dst.w; }
+  float getOppositeY() const { return m_dst.y + m_dst.h; }
+  const Rectf &getDestination() const { return m_dst; }
+  const SDL_Rect getAbsoluteDestination() const;
+
+private:
+  Animation m_animation;
+  Rectf m_dst;
+  ObjState m_state = ObjState::Idle;
+};
+
+class DynamicObject : public Object {
+public:
+  DynamicObject() = default;
+  DynamicObject(const std::unordered_map<ObjState, Animation> &animations,
+                const Rectf &destination, const float vx = 0.0f,
+                const float vy = 0.0f, const bool gravitySensitive = true,
+                const float scale = 1.0f,
+                const ObjState state = ObjState::Idle);
+
+public:
+  // Others
+  void update(const Uint32 &dt) override;
+  void render(SDL_Renderer *renderer) override;
+  void addAnimation(const ObjState state, const Animation &animation);
+
+  // Setters
+  void setVelocity(const float vx, const float vy) {
+    m_vx = vx;
+    m_vy = vy;
+  }
   void setVelocityX(const float vx) { m_vx = vx; }
   void setVelocityY(const float vy) { m_vy = vy; }
-  SDL_Rect getPos() const { return m_pos; }
-  float getPosX() const { return m_pos.x; }
-  float getPosY() const { return m_pos.y; }
-  int getWidth() const { return m_pos.w; }
-  int getHeight() const { return m_pos.h; }
+  void setGravitySensitive(const bool gravStv) { m_gravitySensitive = gravStv; }
+
+  // Getters
   float getVelocityX() const { return m_vx; }
   float getVelocityY() const { return m_vy; }
 
-  // Render related
-  void setTexture(SDL_Texture *texture);
-  virtual void render(SDL_Renderer *renderer);
-
-  // Others
-  virtual void update(const Uint32 dt_ms);
-  void scale(const float factor);
-  bool isColiding(const Object &obj);
-
-  // State
-  void setStates(const std::vector<ObjState> &states) { m_states = states; }
-  const std::vector<ObjState> &getStates() const { return m_states; }
-  void addState(const ObjState state);
-  void removeState(const ObjState state);
-  void replaceState(const ObjState state, const ObjState toReplace,
-                    const bool addIfNotFound = true);
-  bool hasState(const ObjState state) const;
-
 private:
-  SDL_Texture *m_texture;
-  SDL_Rect m_pos;
-  float m_vx = 0;
-  float m_vy = 0;
-  std::vector<ObjState> m_states = {ObjState::Idle};
+  float m_vx = 0.0f;
+  float m_vy = 0.0f;
+  bool m_gravitySensitive = true;
+  std::unordered_map<ObjState, Animation> m_animations;
+  ObjState m_previousState = ObjState::Idle;
 };
 
-class Player : public Object {
-public:
-  enum class AnimationState { Idle, Firing, Moving, FiringAndMoving };
-
+class Player : public DynamicObject {
 public:
   Player() = default;
-  Player(const Object::InitList &init, const int health, const int fireRate);
-  void initialize(const Object::InitList &init, const int health,
-                  const int fireRate);
+  Player(const std::unordered_map<ObjState, Animation> &animations,
+         const Rectf &destination, const int health, const Uint32 &fireRate,
+         const float vx = 0.0f, const float vy = 0.0f,
+         const bool gravitySensitive = true, const float scale = 1.0f,
+         const ObjState state = ObjState::Idle);
 
 public:
-  void update(const Uint32 dt_ms, const std::vector<KbdEvents> &events);
+  void update(const Uint32 &dt, const std::vector<KbdEvents> &events);
   bool shouldSpawnBullet();
-  void addAnimation(const Player::AnimationState state,
-                    const Animation &animation);
-  void render(SDL_Renderer *renderer) override;
+
+  // Setters
+  void setHealth(const int health) { m_health = health; }
+  void setFireRate(const int fireRate) { m_fireRate = 1000 / fireRate; }
 
 private:
   int m_health = 100;
-  Uint32 m_bulletTimer_ms = 0;
-  Uint32 m_fireRate_ms = 100; // fire every X ms
-  AnimationState m_animationState = AnimationState::Idle;
-  std::unordered_map<AnimationState, Animation> m_animations;
+  Uint32 m_bulletTimer = 0;
+  Uint32 m_fireRate = 100; // fire every X ticks
 };
 
-class Projectile : public Object {
+class Projectile : public DynamicObject {
 public:
   Projectile() = default;
-  Projectile(const Object::InitList &init, const int lifespan_ms,
-             const int damage);
-  void initialize(const Object::InitList &init, const int lifespan_ms,
-                  const int damage);
+  Projectile(const std::unordered_map<ObjState, Animation> &animations,
+             const Rectf &destination, const int damage, const Uint32 &lifeSpan,
+             const float vx = 0.0f, const float vy = 0.0f,
+             const bool gravitySensitive = true, const float scale = 1.0f,
+             const ObjState state = ObjState::Moving);
 
 public:
-  void update(const Uint32 dt_ms);
+  void update(const Uint32 &dt);
   bool endedLifespan() const { return m_endedLifespan; }
   void hitted();
 
+  // Setters
+  void setLifeSpan(const Uint32 &lifeSpan) { m_lifeSpan = lifeSpan; }
+  void setDamage(const int damage) { m_damage = damage; }
+
 private:
-  int m_lifespan_ms = 0;
+  Uint32 m_lifeSpan = 0;
   int m_damage = 0;
   bool m_endedLifespan = false;
 };

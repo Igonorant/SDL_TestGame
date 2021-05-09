@@ -8,6 +8,8 @@ namespace Game {
 const std::string Name = "MyGame";
 const int FrameRate = 60;  // frames per second
 const int ModelRate = 200; // updates per second
+const float Floor = 1.0f;  // position of floor
+const float Gravity = 0.0001f;
 } // namespace Game
 
 namespace SDL {

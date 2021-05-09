@@ -13,7 +13,11 @@ enum class KbdEvents {
   LCtrl_KeyUp
 };
 
-enum class ObjState { Firing, Moving, Idle };
+enum class ObjState { Firing, Moving, Idle, FiringAndMoving };
+
+struct Rectf {
+  float x, y, w, h;
+};
 
 class Frame;
 
@@ -22,6 +26,8 @@ class AnimationFrame;
 class Animation;
 
 class Object;
+
+class DynamicObject;
 
 class Player;
 

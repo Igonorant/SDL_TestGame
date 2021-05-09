@@ -146,16 +146,10 @@ void Game::updateModel() {
 
   // Spawn bullets
   if (m_player.shouldSpawnBullet()) {
-    m_playerBullets.emplace_back(
-        Object::InitList{m_textureMgr->GetTexture(Global::Assets::PlayerBullet),
-                         0.025f /*scale*/,
-                         {int(m_player.getPosX()) + 15,
-                          int(m_player.getPosY()) + 20} /*pos*/,
-                         true /*queryTexture*/,
-                         0.5f /*vx*/,
-                         m_player.getVelocityY() /*vy*/,
-                         {ObjState::Moving}},
-        1000 /*lifespan_ms*/, 10 /*damage*/);
+    m_playerBullet.setDestination(
+        {m_player.getOppositeX(),
+         (m_player.getPosY() + m_player.getOppositeY()) / 2, 0.02f, 0.02f});
+    m_playerBullets.emplace_back(m_playerBullet);
   }
 
   // Update bullets

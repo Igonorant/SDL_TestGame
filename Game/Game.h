@@ -39,6 +39,7 @@ private:
 
   // Player objects
   Player m_player;
+  Projectile m_playerBullet;
   std::vector<Projectile> m_playerBullets;
 
   // Timers
