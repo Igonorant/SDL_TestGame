@@ -165,6 +165,17 @@ public:
   void setHealth(const int health) { m_health = health; }
   void setFireRate(const int fireRate) { m_fireRate = 1000 / fireRate; }
 
+  // Queries
+  bool isFiring();
+
+private:
+  void handleIdleState(const KbdEvents event);
+  void handleMovingState(const KbdEvents event);
+  void handleJumpingState(const KbdEvents event);
+  void handleFiringState(const KbdEvents event);
+  void handleFiringAndMovingState(const KbdEvents event);
+  void handleFiringAndJumpingState(const KbdEvents event);
+
 private:
   int m_health = 100;
   Uint32 m_bulletTimer = 0;

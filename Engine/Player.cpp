@@ -1,3 +1,4 @@
+#include "../Game/Definitions.h"
 #include "Components.h"
 
 // PLAYER BEGIN
@@ -14,65 +15,24 @@ void Player::update(const Uint32 &dt, const std::vector<KbdEvents> &events) {
   // Handle events
   const auto previousState = getState();
   for (const auto event : events) {
-    switch (event) {
-    case KbdEvents::Left_KeyDown:
-      setVelocityX(-0.001f);
-      if (getState() == ObjState::Idle) {
-        setState(ObjState::Moving);
-      } else if (getState() == ObjState::Firing) {
-        setState(ObjState::FiringAndMoving);
-      }
+    switch (getState()) {
+    case ObjState::Idle:
+      handleIdleState(event);
       break;
-    case KbdEvents::Right_KeyDown:
-      setVelocityX(0.001f);
-      if (getState() == ObjState::Idle) {
-        setState(ObjState::Moving);
-      } else if (getState() == ObjState::Firing) {
-        setState(ObjState::FiringAndMoving);
-      }
+    case ObjState::Moving:
+      handleMovingState(event);
       break;
-    case KbdEvents::Space_KeyDown:
-      setVelocityY(-0.005f);
-      if (getState() == ObjState::Idle) {
-        setState(ObjState::Moving);
-      } else if (getState() == ObjState::Firing) {
-        setState(ObjState::FiringAndMoving);
-      }
+    case ObjState::Jumping:
+      handleJumpingState(event);
       break;
-    case KbdEvents::Up_KeyUp:
-    case KbdEvents::Down_KeyUp:
-      if (getVelocityX() == 0.0f) {
-        if (getState() == ObjState::Moving) {
-          setState(ObjState::Idle);
-        } else if (getState() == ObjState::FiringAndMoving) {
-          setState(ObjState::Firing);
-        }
-      }
+    case ObjState::Firing:
+      handleFiringState(event);
       break;
-    case KbdEvents::Left_KeyUp:
-    case KbdEvents::Right_KeyUp:
-      setVelocityX(0.0f);
-      if (getVelocityY() == 0.0f) {
-        if (getState() == ObjState::Moving) {
-          setState(ObjState::Idle);
-        } else if (getState() == ObjState::FiringAndMoving) {
-          setState(ObjState::Firing);
-        }
-      }
+    case ObjState::FiringAndMoving:
+      handleFiringAndMovingState(event);
       break;
-    case KbdEvents::LCtrl_KeyDown:
-      if (getVelocityX() == 0.0f && getVelocityY() == 0.0f) {
-        setState(ObjState::Firing);
-      } else {
-        setState(ObjState::FiringAndMoving);
-      }
-      break;
-    case KbdEvents::LCtrl_KeyUp:
-      if (getVelocityX() == 0.0f && getVelocityY() == 0.0f) {
-        setState(ObjState::Idle);
-      } else {
-        setState(ObjState::Moving);
-      }
+    case ObjState::FiringAndJumping:
+      handleFiringAndJumpingState(event);
       break;
     default:
       break;
@@ -80,8 +40,7 @@ void Player::update(const Uint32 &dt, const std::vector<KbdEvents> &events) {
   }
 
   // Update bullet timer
-  if (getState() == ObjState::Firing ||
-      getState() == ObjState::FiringAndMoving) {
+  if (isFiring()) {
     m_bulletTimer += dt;
   } else {
     m_bulletTimer = 0;
@@ -92,12 +51,186 @@ void Player::update(const Uint32 &dt, const std::vector<KbdEvents> &events) {
 }
 
 bool Player::shouldSpawnBullet() {
-  if ((getState() == ObjState::Firing ||
-       getState() == ObjState::FiringAndMoving) &&
-      m_bulletTimer >= m_fireRate) {
+  if (isFiring() && (m_bulletTimer >= m_fireRate || m_bulletTimer == 0)) {
     m_bulletTimer %= m_fireRate;
     return true;
   }
   return false;
 }
+
+bool Player::isFiring() {
+  return getState() == ObjState::Firing ||
+         getState() == ObjState::FiringAndMoving ||
+         getState() == ObjState::FiringAndJumping;
+}
+
+void Player::handleIdleState(const KbdEvents event) {
+  switch (event) {
+  case KbdEvents::Left_KeyDown:
+  case KbdEvents::Right_KeyDown: {
+    setState(ObjState::Moving);
+    const float vx = event == KbdEvents::Left_KeyDown ? -0.001f : 0.001f;
+    setVelocityX(vx);
+    break;
+  }
+  case KbdEvents::Space_KeyDown: {
+    setState(ObjState::Jumping);
+    setVelocityY(-0.005f);
+    break;
+  }
+  case KbdEvents::LCtrl_KeyDown: {
+    setState(ObjState::Firing);
+    m_bulletTimer = 0;
+  }
+  default:
+    break;
+  }
+}
+
+void Player::handleMovingState(const KbdEvents event) {
+  switch (event) {
+  case KbdEvents::Left_KeyDown:
+  case KbdEvents::Right_KeyDown: {
+    setState(ObjState::Moving);
+    const float vx = event == KbdEvents::Left_KeyDown ? -0.001f : 0.001f;
+    setVelocityX(vx);
+    break;
+  }
+  case KbdEvents::Left_KeyUp:
+  case KbdEvents::Right_KeyUp: {
+    setState(ObjState::Idle);
+    setVelocityX(0.0f);
+    break;
+  }
+  case KbdEvents::Space_KeyDown: {
+    setState(ObjState::Jumping);
+    setVelocityY(-0.005f);
+    break;
+  }
+  case KbdEvents::LCtrl_KeyDown: {
+    setState(ObjState::FiringAndMoving);
+  }
+  default:
+    break;
+  }
+}
+
+void Player::handleJumpingState(const KbdEvents event) {
+  switch (event) {
+  case KbdEvents::Left_KeyDown:
+  case KbdEvents::Right_KeyDown: {
+    const float vx = event == KbdEvents::Left_KeyDown ? -0.001f : 0.001f;
+    setVelocityX(vx);
+    break;
+  }
+  case KbdEvents::Left_KeyUp:
+  case KbdEvents::Right_KeyUp: {
+    setVelocityX(0.0f);
+    break;
+  }
+    // TODO: enable double jump later
+    //   case KbdEvents::Space_KeyDown: {
+    //     setState(ObjState::Jumping);
+    //     setVelocityY(-0.005f);
+    //     break;
+    //   }
+  case KbdEvents::LCtrl_KeyDown: {
+    setState(ObjState::FiringAndJumping);
+  }
+  default:
+    break;
+  }
+  if (getOppositeY() == Global::Game::Floor) {
+    if (getVelocityX() == 0) {
+      setState(ObjState::Idle);
+    } else {
+      setState(ObjState::Moving);
+    }
+  }
+}
+
+void Player::handleFiringState(const KbdEvents event) {
+  switch (event) {
+  case KbdEvents::Left_KeyDown:
+  case KbdEvents::Right_KeyDown: {
+    setState(ObjState::FiringAndMoving);
+    const float vx = event == KbdEvents::Left_KeyDown ? -0.001f : 0.001f;
+    setVelocityX(vx);
+    break;
+  }
+  case KbdEvents::Space_KeyDown: {
+    setState(ObjState::FiringAndJumping);
+    setVelocityY(-0.005f);
+    break;
+  }
+  case KbdEvents::LCtrl_KeyUp: {
+    setState(ObjState::Idle);
+  }
+  default:
+    break;
+  }
+}
+
+void Player::handleFiringAndMovingState(const KbdEvents event) {
+  switch (event) {
+  case KbdEvents::Left_KeyDown:
+  case KbdEvents::Right_KeyDown: {
+    setState(ObjState::FiringAndMoving);
+    const float vx = event == KbdEvents::Left_KeyDown ? -0.001f : 0.001f;
+    setVelocityX(vx);
+    break;
+  }
+  case KbdEvents::Left_KeyUp:
+  case KbdEvents::Right_KeyUp: {
+    setState(ObjState::Firing);
+    setVelocityX(0.0f);
+    break;
+  }
+  case KbdEvents::Space_KeyDown: {
+    setState(ObjState::FiringAndJumping);
+    setVelocityY(-0.005f);
+    break;
+  }
+  case KbdEvents::LCtrl_KeyUp: {
+    setState(ObjState::Moving);
+  }
+  default:
+    break;
+  }
+}
+
+void Player::handleFiringAndJumpingState(const KbdEvents event) {
+  switch (event) {
+  case KbdEvents::Left_KeyDown:
+  case KbdEvents::Right_KeyDown: {
+    const float vx = event == KbdEvents::Left_KeyDown ? -0.001f : 0.001f;
+    setVelocityX(vx);
+    break;
+  }
+  case KbdEvents::Left_KeyUp:
+  case KbdEvents::Right_KeyUp: {
+    setVelocityX(0.0f);
+    break;
+  }
+    // TODO: enable double jump later
+    //   case KbdEvents::Space_KeyDown: {
+    //     setState(ObjState::Jumping);
+    //     setVelocityY(-0.005f);
+    //     break;
+    //   }
+  case KbdEvents::LCtrl_KeyUp: {
+    setState(ObjState::Jumping);
+  }
+  default:
+    break;
+  }
+  if (getOppositeY() == Global::Game::Floor) {
+    if (getVelocityX() == 0) {
+      setState(ObjState::Firing);
+    } else {
+      setState(ObjState::FiringAndMoving);
+    }
+  }
+}
+
 // PLAYER END

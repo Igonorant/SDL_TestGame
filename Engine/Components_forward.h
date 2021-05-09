@@ -15,7 +15,14 @@ enum class KbdEvents {
   Space_KeyUp,
 };
 
-enum class ObjState { Firing, Moving, Idle, FiringAndMoving };
+enum class ObjState {
+  Idle,
+  Moving,
+  Jumping,
+  Firing,
+  FiringAndMoving,
+  FiringAndJumping
+};
 
 struct Rectf {
   float x, y, w, h;

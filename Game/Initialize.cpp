@@ -12,8 +12,9 @@ void Game::initialize() {
   m_player.setFireRate(12);
 
   // Load animations for player
+  // TODO: find some assets to add animations to player states
   Animation idle;
-  for (unsigned int i = 0; i < 10; ++i) {
+  for (unsigned int i = 0; i < 1; ++i) {
     idle.addFrame({
         m_textureMgr->GetTexture(Global::Assets::Player),
         {0, 0, 0, 0},
@@ -22,39 +23,11 @@ void Game::initialize() {
     });
   }
   m_player.addAnimation(ObjState::Idle, idle);
-
-  Animation moving;
-  for (unsigned int i = 0; i < 8; ++i) {
-    moving.addFrame({
-        m_textureMgr->GetTexture(Global::Assets::Player),
-        {0, 0, 0, 0},
-        100 /*time*/,
-        true /*queryTexture*/
-    });
-  }
-  m_player.addAnimation(ObjState::Moving, moving);
-
-  Animation firingAndMoving;
-  for (unsigned int i = 0; i < 9; ++i) {
-    firingAndMoving.addFrame({
-        m_textureMgr->GetTexture(Global::Assets::Player),
-        {0, 0, 0, 0},
-        100 /*time*/,
-        true /*queryTexture*/
-    });
-  }
-  m_player.addAnimation(ObjState::FiringAndMoving, firingAndMoving);
-
-  Animation firing;
-  for (unsigned int i = 0; i < 4; ++i) {
-    firing.addFrame({
-        m_textureMgr->GetTexture(Global::Assets::Player),
-        {0, 0, 0, 0},
-        100 /*time*/,
-        true /*queryTexture*/
-    });
-  }
-  m_player.addAnimation(ObjState::Firing, firing);
+  m_player.addAnimation(ObjState::Moving, idle);
+  m_player.addAnimation(ObjState::Jumping, idle);
+  m_player.addAnimation(ObjState::Firing, idle);
+  m_player.addAnimation(ObjState::FiringAndMoving, idle);
+  m_player.addAnimation(ObjState::FiringAndJumping, idle);
 
   // Player Bullet
   m_playerBullet.setDamage(5);
