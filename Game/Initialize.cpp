@@ -9,7 +9,7 @@ void Game::initialize() {
 
   m_player.setDestination({0.1f, 0.5f, 0.1f, 0.1f});
   m_player.setHealth(100);
-  m_player.setFireRate(5);
+  m_player.setFireRate(12);
 
   // Load animations for player
   Animation idle;

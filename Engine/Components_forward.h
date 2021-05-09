@@ -10,7 +10,9 @@ enum class KbdEvents {
   Right_KeyDown,
   Right_KeyUp,
   LCtrl_KeyDown,
-  LCtrl_KeyUp
+  LCtrl_KeyUp,
+  Space_KeyDown,
+  Space_KeyUp,
 };
 
 enum class ObjState { Firing, Moving, Idle, FiringAndMoving };

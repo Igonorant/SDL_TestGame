@@ -91,22 +91,6 @@ void Player::update(const Uint32 &dt, const std::vector<KbdEvents> &events) {
   const auto previousState = getState();
   for (const auto event : events) {
     switch (event) {
-    case KbdEvents::Up_KeyDown:
-      setVelocityY(-0.001f);
-      if (getState() == ObjState::Idle) {
-        setState(ObjState::Moving);
-      } else if (getState() == ObjState::Firing) {
-        setState(ObjState::FiringAndMoving);
-      }
-      break;
-    case KbdEvents::Down_KeyDown:
-      setVelocityY(0.001f);
-      if (getState() == ObjState::Idle) {
-        setState(ObjState::Moving);
-      } else if (getState() == ObjState::Firing) {
-        setState(ObjState::FiringAndMoving);
-      }
-      break;
     case KbdEvents::Left_KeyDown:
       setVelocityX(-0.001f);
       if (getState() == ObjState::Idle) {
@@ -117,6 +101,14 @@ void Player::update(const Uint32 &dt, const std::vector<KbdEvents> &events) {
       break;
     case KbdEvents::Right_KeyDown:
       setVelocityX(0.001f);
+      if (getState() == ObjState::Idle) {
+        setState(ObjState::Moving);
+      } else if (getState() == ObjState::Firing) {
+        setState(ObjState::FiringAndMoving);
+      }
+      break;
+    case KbdEvents::Space_KeyDown:
+      setVelocityY(-0.005f);
       if (getState() == ObjState::Idle) {
         setState(ObjState::Moving);
       } else if (getState() == ObjState::Firing) {

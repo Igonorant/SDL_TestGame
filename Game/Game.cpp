@@ -101,6 +101,9 @@ std::vector<KbdEvents> Game::processKeydown(SDL_KeyboardEvent *event) {
   case SDL_SCANCODE_LCTRL:
     ret.push_back(KbdEvents::LCtrl_KeyDown);
     break;
+  case SDL_SCANCODE_SPACE:
+    ret.push_back(KbdEvents::Space_KeyDown);
+    break;
   default:
     break;
   }
@@ -127,6 +130,9 @@ std::vector<KbdEvents> Game::processKeyup(SDL_KeyboardEvent *event) {
     break;
   case SDL_SCANCODE_LCTRL:
     ret.push_back(KbdEvents::LCtrl_KeyUp);
+    break;
+  case SDL_SCANCODE_SPACE:
+    ret.push_back(KbdEvents::Space_KeyUp);
     break;
   default:
     break;
