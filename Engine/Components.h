@@ -6,27 +6,66 @@
 #include <unordered_map>
 #include <vector>
 
-class Animation {
-  struct Frame {
-    SDL_Texture *m_texture;
-    SDL_Rect m_frame;
-    Uint32 m_time;
-  };
+class Frame {
+public:
+  Frame() = default;
+  Frame(SDL_Texture *texture, const SDL_Rect &source,
+        const bool queryTexture = false);
 
+public:
+  void render(SDL_Renderer *renderer, const SDL_Rect &destination);
+
+  // Setters
+  void setTexture(SDL_Texture *texture, const bool queryTexture = false);
+  void setSource(const SDL_Rect &source, const bool queryTexture = false);
+
+  // Getters
+  SDL_Texture *getTexture() const { return m_texture; }
+  const SDL_Rect &getSource() const { return m_src; }
+
+private:
+  SDL_Texture *m_texture = nullptr;
+  SDL_Rect m_src;
+};
+
+class AnimationFrame {
+public:
+  AnimationFrame() = default;
+  AnimationFrame(const Frame &frame, const Uint32 ticks);
+  AnimationFrame(SDL_Texture *texture, const SDL_Rect &source,
+                 const Uint32 &ticks, const bool queryTexture = false);
+
+public:
+  void render(SDL_Renderer *renderer, const SDL_Rect &destination);
+
+  // Setters
+  void setFrame(const Frame &frame) { m_frame = frame; }
+  void setTicks(const Uint32 &ticks) { m_ticks = ticks; }
+
+  // Getters
+  const Frame &getFrame() const { return m_frame; }
+  const Uint32 &getTicks() const { return m_ticks; }
+
+public:
+  Frame m_frame;
+  Uint32 m_ticks;
+};
+
+class Animation {
 public:
   Animation() = default;
-  Animation(const std::vector<Animation::Frame> &animation);
+  Animation(const std::vector<AnimationFrame> &animation);
 
 public:
-  void addFrame(const Frame &frame);
-  void addFrames(const std::vector<Animation::Frame> &frames);
-  void render(SDL_Renderer *renderer, const SDL_Rect &dst);
-  void update(const Uint32 dt);
+  void addFrame(const AnimationFrame &frame);
+  void addFrames(const std::vector<AnimationFrame> &frames);
+  void render(SDL_Renderer *renderer, const SDL_Rect &destination);
+  void update(const Uint32 &dt);
   void reset();
 
 private:
-  std::vector<Animation::Frame> m_frames;
-  Uint32 m_currTime_ms = 0;
+  std::vector<AnimationFrame> m_frames;
+  Uint32 m_currTicks = 0;
   unsigned int m_currFrame = 0;
   unsigned int m_nFrames = 0;
 };

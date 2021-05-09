@@ -15,6 +15,10 @@ enum class KbdEvents {
 
 enum class ObjState { Firing, Moving, Idle };
 
+class Frame;
+
+class AnimationFrame;
+
 class Animation;
 
 class Object;
