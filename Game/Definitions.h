@@ -19,6 +19,7 @@ const int ScreenHeight = 600;
 
 namespace Assets {
 const std::string Player = "./Assets/Tmp/character.png";
+const std::string Bullets = "./Assets/Bullets/bullets.png";
 const std::string PlayerBullet = "./Assets/Tmp/player_bullet.png";
 const std::string Dummy = "./Assets/Tmp/dummy.png";
 } // namespace Assets
